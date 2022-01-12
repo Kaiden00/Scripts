@@ -1,0 +1,130 @@
+
+getgenv().MS = 30
+
+if Executed then warn("Already executed!") return end; getgenv().Executed = true
+if not game:IsLoaded() then game.Loaded:Wait() end 
+
+local RunService = game:GetService("RunService")
+local InputManager = game:GetService("VirtualInputManager")
+
+local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
+local MainMaid = Maid.new()
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+
+local Client = game:GetService("Players").LocalPlayer
+local PlayerGui = Client:WaitForChild("PlayerGui")
+
+local Keybinds = Client:WaitForChild("Input", 5):WaitForChild("Keybinds", 5)
+
+local Removeables = {
+    "background"
+}
+
+local ArrowsTable = {
+    ["4"] = {"Up", "Down", "Left", "Right"},
+}
+
+local function OnChildAdded(Menu)
+    MainMaid:DoCleaning()
+
+    repeat task.wait(0.2) until Menu.Config.ChartReady.Value == true or not Menu.Parent or not Menu
+    if not Menu.Parent or not Menu then return end
+
+    task.wait(1.5)
+
+    local SideValue = Menu:WaitForChild("PlayerSide").Value
+    local SideMenu = Menu.Game:FindFirstChild(SideValue)
+
+    local Marked = {}    
+    local Arrows = ArrowsTable[tostring(#SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
+
+    MainMaid:GiveTask(RunService.RenderStepped:Connect(function()
+        if not Library.flags.AutoPlayer then return end
+
+        for _, Arrow in ipairs(Arrows) do
+            Arrow = tostring(Arrow)
+
+            local Holder = SideMenu.Arrows:WaitForChild("IncomingArrows", 5):FindFirstChild(Arrow)
+            if not Holder then continue end
+
+            for _, Object in ipairs(Holder:GetChildren()) do
+                if table.find(Marked, Object) then continue end
+                if Object.HellNote.Value == true then Object:Destroy() continue end
+
+
+                local Key = nil
+                
+                if Keybinds:FindFirstChild(Arrow) then 
+                    Key = Keybinds[Arrow].Value 
+                else
+                    Key = Arrow
+                end
+
+                local Start = SideMenu.Arrows[Arrow].AbsolutePosition.Y
+                local Current = Object.AbsolutePosition.Y
+                local Difference = (Start - Current)
+
+                if Difference <= MS then 
+                    table.insert(Marked, Object)
+
+                    InputManager:SendKeyEvent(true, Key, false, nil)
+                    repeat task.wait() until not Object or not Object:FindFirstChild("Frame") or Object.Frame.Bar.Size.Y.Scale <= 0
+                    InputManager:SendKeyEvent(false, Key, false, nil)
+                end
+            end 
+
+        end
+    end))
+
+    MainMaid:GiveTask(Menu.DescendantAdded:Connect(function(Child)
+        if not table.find(Removeables, Child.Name) then return end
+        repeat
+            Child:Destroy()
+            task.wait()
+        until Child.Parent == nil
+        Menu.Config.CantHitNotes.Value = false
+    end))
+
+    MainMaid:GiveTask(Menu.AncestryChanged:Connect(function(_, New)
+        if (not New) or (not Menu:IsDescendantOf(PlayerGui)) then
+            print("Cleaning Connections!")
+            MainMaid:DoCleaning()
+        end
+    end))
+
+    MainMaid:GiveTask(function()
+        table.clear(Marked)
+    end)
+end
+
+PlayerGui.ChildAdded:Connect(function(Object)
+    if Object:IsA("ScreenGui") and Object.Name == "FNFEngine" then
+        OnChildAdded(Object)
+    end 
+end)
+local _ = PlayerGui:FindFirstChild("FNFEngine") and OnChildAdded(Menu)
+
+do
+    local Window = Library:CreateWindow("Friday Night Bloxxin'") do
+        local Folder = Window:AddFolder("Autoplayer") do
+            local Toggle = Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer" })
+        end
+        Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end })
+
+        Window:AddButton({text = "Instant Solo", callback = function()
+            pcall(function()
+                PlayerGui.SingleplayerUI.ButtonPressed:FireServer()
+            end)
+        end})
+    end
+    Library:Init()
+end
+
+local Old; Old = hookmetamethod(game, "__newindex", newcclosure(function(self, ...)
+    local Args = {...}
+
+    if self == Client.Character.Humanoid and Args[1] == "Health" and not checkcaller() then return end 
+    
+    return Old(self, ...)
+end))
