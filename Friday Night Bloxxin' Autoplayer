@@ -1,7 +1,4 @@
 
-getgenv().MS = 30
-
-if Executed then warn("Already executed!") return end; getgenv().Executed = true
 if not game:IsLoaded() then game.Loaded:Wait() end 
 
 local RunService = game:GetService("RunService")
@@ -39,7 +36,7 @@ local function OnChildAdded(Menu)
     local Marked = {}    
     local Arrows = ArrowsTable[tostring(#SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
 
-    MainMaid:GiveTask(RunService.RenderStepped:Connect(function()
+    MainMaid:GiveTask(RunService.Heartbeat:Connect(function()
         if not Library.flags.AutoPlayer then return end
 
         for _, Arrow in ipairs(Arrows) do
@@ -65,7 +62,7 @@ local function OnChildAdded(Menu)
                 local Current = Object.AbsolutePosition.Y
                 local Difference = (Start - Current)
 
-                if Difference <= MS then 
+                if Difference <= 10 then 
                     table.insert(Marked, Object)
 
                     InputManager:SendKeyEvent(true, Key, false, nil)
