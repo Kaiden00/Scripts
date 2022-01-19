@@ -64,7 +64,7 @@ local function OnChildAdded(Menu)
                 local Start = SideMenu.Arrows[Arrow].AbsolutePosition.Y
                 local Current = Object.AbsolutePosition.Y
                 local Difference = (Start - Current)
-		
+
                 if Difference <= 80 then 
                     table.insert(Marked, Object)
 
