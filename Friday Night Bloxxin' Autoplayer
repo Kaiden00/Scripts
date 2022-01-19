@@ -131,4 +131,4 @@ do
     local _ = PlayerGui:FindFirstChild("FNFEngine") and OnChildAdded(PlayerGui.FNFEngine)
 end
 
-Notify("Update!", "Autoplayer more accurate and some bug fixes!", 2)
+Notify("Update!", "Autoplayer more accurate and some bug fixes!", 3.5)
