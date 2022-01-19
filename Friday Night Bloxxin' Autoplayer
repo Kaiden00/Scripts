@@ -22,6 +22,14 @@ local ArrowsTable = {
     ["4"] = {"Up", "Down", "Left", "Right"},
 }
 
+local function Notify(Title, Text, Duration)
+	game:GetService("StarterGui"):SetCore("SendNotification", {
+		Title = Title, 
+		Text = Text, 
+		Duration = Duration
+	})
+end
+
 local function OnChildAdded(Menu)
     MainMaid:DoCleaning()
 
@@ -127,3 +135,5 @@ do
     end)
     local _ = PlayerGui:FindFirstChild("FNFEngine") and OnChildAdded(PlayerGui.FNFEngine)
 end
+
+Notify("Update!", "Autoplayer more accurate and some bug fixes!", 5)
