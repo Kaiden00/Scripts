@@ -33,19 +33,14 @@ end
 local function OnChildAdded(Menu)
     MainMaid:DoCleaning()
 
-    repeat task.wait(0.2) until Menu.Config.ChartReady.Value == true or not Menu.Parent or not Menu
-    if not Menu.Parent or not Menu then return end
-
-    task.wait(1.5)
-
-    local SideValue = Menu:WaitForChild("PlayerSide").Value
-    local SideMenu = Menu.Game:FindFirstChild(SideValue)
-
     local Marked = {}    
-    local Arrows = ArrowsTable[tostring(#SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
 
+    local SideMenu = Menu.Game:FindFirstChild(Menu:WaitForChild("PlayerSide").Value)
+    local Arrows = ArrowsTable[tostring(#SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
+    
     MainMaid:GiveTask(RunService.RenderStepped:Connect(function()
         if not Library.flags.AutoPlayer then return end
+        if Menu.Config.TimePast.Value <= 0 then return end
 
         for _, Arrow in ipairs(Arrows) do
             Arrow = tostring(Arrow)
