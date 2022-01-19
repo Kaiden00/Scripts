@@ -50,7 +50,7 @@ local function OnChildAdded(Menu)
 
             for _, Object in ipairs(Holder:GetChildren()) do
                 if table.find(Marked, Object) then continue end
-              --if Object.HellNote.Value == true then Object:Destroy() continue end
+                if Object.HellNote.Value == true then continue end
 
 
                 local Key = nil
