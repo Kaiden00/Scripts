@@ -116,9 +116,13 @@ end))
 
 do
     PlayerGui.ChildAdded:Connect(function(Object)
-        if Object:IsA("ScreenGui") and Object.Name == "FNFEngine" then
+        if Object:IsA("ScreenGui") and Object:FindFirstChild("Events") then
             OnChildAdded(Object)
         end 
     end)
-    local _ = PlayerGui:FindFirstChild("FNFEngine") and OnChildAdded(PlayerGui.FNFEngine)
+
+    for _, ScreenGui in ipairs(PlayerGui:GetChildren()) do
+        if not ScreenGui:FindFirstChild("Events") then continue end
+        OnChildAdded(ScreenGui)
+    end
 end
