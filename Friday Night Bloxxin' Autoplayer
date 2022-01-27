@@ -30,7 +30,7 @@ local function OnChildAdded(Menu)
     local SideMenu = Menu.Game:FindFirstChild(Menu:WaitForChild("PlayerSide").Value)
     local Arrows = ArrowsTable[tostring(#SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
     
-    MainMaid:GiveTask(RunService.RenderStepped:Connect(function()
+    MainMaid:GiveTask(RunService.Heartbeat:Connect(function()
         if not Library.flags.AutoPlayer then return end
         if Menu.Config.TimePast.Value <= 0 then return end
 
@@ -57,7 +57,7 @@ local function OnChildAdded(Menu)
                 local Current = Object.AbsolutePosition.Y
                 local Difference = (Start - Current)
 
-                if Difference <= 80 then 
+                if Difference <= 50 then 
                     table.insert(Marked, Object)
 
                     InputManager:SendKeyEvent(true, Key, false, nil)
