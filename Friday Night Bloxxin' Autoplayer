@@ -19,6 +19,8 @@ local ArrowsTable = {["4"] = {"Up", "Down", "Left", "Right"}}
 
 local function ConfigureSettings(Menu)
     table.clear(Settings.Marked)
+    repeat task.wait(0.1) until Menu.Config.TimePast.Value > 0
+
     Settings.SideMenu = Menu.Game:FindFirstChild(Menu:WaitForChild("PlayerSide").Value)
     Settings.Arrows =  ArrowsTable[tostring(#Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
 end
@@ -27,10 +29,11 @@ RunService.Heartbeat:Connect(function()
     if not Library.flags.AutoPlayer then return end
     if not Menu then return end
     if Menu.Config.TimePast.Value <= 0 then return end
+    if not Settings.Arrows then return end
 
     for _, Arrow in ipairs(Settings.Arrows) do
         Arrow = tostring(Arrow)
-
+        
         local ArrowsContainer = Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):FindFirstChild(Arrow)
         if not ArrowsContainer then continue end
 
