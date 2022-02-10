@@ -74,7 +74,7 @@ do
             local Toggle = Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer" })
         end
         Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end })
-        Window:AddLabel({ text = "UPDATE: Bug fixes!" })
+        Window:AddLabel({ text = "UPDATE: Bug fixes:Supports 6k,7k etc and fixed upscroll" })
         Window:AddButton({text = "Instant Solo", callback = function()
             pcall(function()
                 PlayerGui.SingleplayerUI.ButtonPressed:FireServer()
