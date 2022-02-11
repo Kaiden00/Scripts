@@ -79,6 +79,7 @@ do
         end
 
         Folder:AddLabel({text = "Bug fixes!"})
+        Folder:AddLabel({text = "Multi-key support!"})
 
         Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end })
         Window:AddButton({text = "Instant Solo", callback = function()
