@@ -16,29 +16,34 @@ local Keybinds = InputFolder:WaitForChild("Keybinds")
 
 local Marked = {}
 
-local ArrowsTable = {["4"] = {"Up", "Down", "Left", "Right"}}
+local KeysTable = {
+    ["4"] = {"Up", "Down", "Left", "Right"},
+    ["6"] = {S = "L3", D = "L2", F = "L1", J = "R1", K = "R2", L = "R3"},
+    ["7"] = {S = "L3", D = "L2", F = "L1", Space = "Space", J = "R1", K = "R2", L = "R3"},
+    ["9"] = {A = "L4", S = "L3", D = "L2", F = "L1", Space = "Space", H = "R1", J = "R2", K = "R3", L = "R4"}
+}
 
 RunService.Heartbeat:Connect(function()
     if not Library.flags.AutoPlayer then return end
-    if not Menu then return end
+    if not Menu or not Menu.Parent then return end
     if Menu.Config.TimePast.Value <= 0 then return end
     
     local SideMenu = Menu.Game:FindFirstChild(Menu.PlayerSide.Value)
     local IncomingArrows = SideMenu.Arrows.IncomingArrows
 
-    local Arrows = ArrowsTable[tostring(#IncomingArrows:GetChildren())] or IncomingArrows:GetChildren()
+    local Keys = KeysTable[tostring(#IncomingArrows:GetChildren())] or IncomingArrows:GetChildren()
 
-    for _, Arrow in ipairs(Arrows) do
-        Arrow = tostring(Arrow)
-        
-        local ArrowsContainer = IncomingArrows:FindFirstChild(Arrow)
-        if not ArrowsContainer then continue end
+    for Key, Direction in pairs(Keys) do
+        Direction = tostring(Direction)
 
-        for _, Object in ipairs(ArrowsContainer:GetChildren()) do
+        local ArrowsHolder = IncomingArrows:FindFirstChild(Direction) or IncomingArrows:FindFirstChild(Key)
+        if not ArrowsHolder then continue end
+
+        for _, Object in ipairs(ArrowsHolder:GetChildren()) do
             if table.find(Marked, Object) then continue end
-            local Keybind = Keybinds:FindFirstChild(Arrow) and Keybinds[Arrow].Value or Arrow
+            local Keybind = Keybinds:FindFirstChild(Direction) and Keybinds[Direction].Value
 
-            local Start = SideMenu.Arrows[Arrow].AbsolutePosition.Y
+            local Start = SideMenu.Arrows:FindFirstChild(Direction) and SideMenu.Arrows[Direction].AbsolutePosition.Y or SideMenu.Arrows[Key].AbsolutePosition.Y
             local Current = Object.AbsolutePosition.Y
             local Difference = not InputFolder.Downscroll.Value and (Current - Start) or (Start - Current)
 
