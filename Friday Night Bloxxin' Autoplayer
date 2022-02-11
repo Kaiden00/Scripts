@@ -14,58 +14,57 @@ local PlayerGui = Client:WaitForChild("PlayerGui")
 local InputFolder = Client:WaitForChild("Input")
 local Keybinds = InputFolder:WaitForChild("Keybinds")
 
-local Settings = {Marked = {}}
+local Marked = {}
+
 local ArrowsTable = {["4"] = {"Up", "Down", "Left", "Right"}}
-
-local function ConfigureSettings(Menu)
-    table.clear(Settings.Marked)
-    repeat task.wait(0.1) until Menu.Config.TimePast.Value > 0
-
-    Settings.SideMenu = Menu.Game:FindFirstChild(Menu:WaitForChild("PlayerSide").Value)
-    Settings.Arrows =  ArrowsTable[tostring(#Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren())] or Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):GetChildren()
-end
 
 RunService.Heartbeat:Connect(function()
     if not Library.flags.AutoPlayer then return end
     if not Menu then return end
     if Menu.Config.TimePast.Value <= 0 then return end
-    if not Settings.Arrows then return end
+    
+    local SideMenu = Menu.Game:FindFirstChild(Menu.PlayerSide.Value)
+    local IncomingArrows = SideMenu.Arrows.IncomingArrows
 
-    for _, Arrow in ipairs(Settings.Arrows) do
+    local Arrows = ArrowsTable[tostring(#IncomingArrows:GetChildren())] or IncomingArrows:GetChildren()
+
+    for _, Arrow in ipairs(Arrows) do
         Arrow = tostring(Arrow)
         
-        local ArrowsContainer = Settings.SideMenu.Arrows:WaitForChild("IncomingArrows"):FindFirstChild(Arrow)
+        local ArrowsContainer = IncomingArrows:FindFirstChild(Arrow)
         if not ArrowsContainer then continue end
 
         for _, Object in ipairs(ArrowsContainer:GetChildren()) do
+            if table.find(Marked, Object) then continue end
             local Keybind = Keybinds:FindFirstChild(Arrow) and Keybinds[Arrow].Value or Arrow
 
-            local Start = Settings.SideMenu.Arrows[Arrow].AbsolutePosition.Y
+            local Start = SideMenu.Arrows[Arrow].AbsolutePosition.Y
             local Current = Object.AbsolutePosition.Y
-            local Difference = not InputFolder.Downscroll.Value and (Current - Start) or (Start - Current) --so that upscroll and downscroll work
+            local Difference = not InputFolder.Downscroll.Value and (Current - Start) or (Start - Current)
 
-            if Difference <= 0.25 and not Settings.Marked[Object] and not Object:FindFirstChild("HellNote").Value then
-                Settings.Marked[Object] = true
+            local IsHell = Object:FindFirstChild("HellNote") and Object:FindFirstChild("HellNote").Value
+
+            if Difference <= 0.35 and not IsHell then
+                Marked[#Marked + 1] = Object
 
                 InputManager:SendKeyEvent(true, Keybind, false, nil)
                 repeat task.wait() until not Object or not Object:FindFirstChild("Frame") or Object.Frame.Bar.Size.Y.Scale <= 0
                 InputManager:SendKeyEvent(false, Keybind, false, nil)
-            end
+            end 
         end 
     end
 end)
 
 PlayerGui.ChildAdded:Connect(function(Object)
     if Object:IsA("ScreenGui") and Object:FindFirstChild("Game") then
+        table.clear(Marked)
         getgenv().Menu = Object
-        ConfigureSettings(Menu)
     end 
 end)
 
 for _, ScreenGui in ipairs(PlayerGui:GetChildren()) do
     if not ScreenGui:FindFirstChild("Game") then continue end
-    getgenv().Menu = Object
-    ConfigureSettings(Menu)
+    getgenv().Menu = ScreenGui
 end
 
 do
@@ -74,11 +73,6 @@ do
             local Toggle = Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer" })
         end
         Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end })
-
-        Window:AddLabel({ text = "UPDATE: Bug fixes" })
-        Window:AddLabel({ text = "Supports 6k,7k etc" })
-        Window:AddLabel({ text = "Fixed upscroll" })
-
         Window:AddButton({text = "Instant Solo", callback = function()
             pcall(function()
                 PlayerGui.SingleplayerUI.ButtonPressed:FireServer()
