@@ -52,9 +52,9 @@ RunService.Heartbeat:Connect(function()
             if Difference <= 0.35 and not IsHell then
                 Marked[#Marked + 1] = Object
 
-                InputManager:SendKeyEvent(true, Keybind, false, nil)
+                InputManager:SendKeyEvent(true, Enum.KeyCode[Keybind], false, nil)
                 repeat task.wait() until not Object or not Object:FindFirstChild("Frame") or Object.Frame.Bar.Size.Y.Scale <= 0
-                InputManager:SendKeyEvent(false, Keybind, false, nil)
+                InputManager:SendKeyEvent(false, Enum.KeyCode[Keybind], false, nil)
             end 
         end 
     end
@@ -77,6 +77,9 @@ do
         local Folder = Window:AddFolder("Autoplayer") do
             local Toggle = Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer" })
         end
+
+        Folder:AddLabel({text = "Bug fixes!"})
+
         Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end })
         Window:AddButton({text = "Instant Solo", callback = function()
             pcall(function()
