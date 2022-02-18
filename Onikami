@@ -27,10 +27,8 @@ local function Attack()
         Tool.Parent = Client.Character
     end
 
-    pcall(function()
-        game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Katana:FireServer("Release")
-        game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Fists:FireServer("Release")
-    end)
+    game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Katana:FireServer("Release")
+    game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Fists:FireServer("Release")
 end
 
 local function CheckCondition(Humanoid, HumanoidRootPart)
@@ -90,7 +88,7 @@ local function OnCharacterAdded(Character)
                 TargetMob = Mob
             end
         end
-        
+
         repeat task.wait()
             if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
                 HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
