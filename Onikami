@@ -1,0 +1,139 @@
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+--//Services
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+--//Imports
+local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+
+--//Variables
+local Client = game:GetService("Players").LocalPlayer
+local Exclusions = {
+    "LoadBackpack"
+}
+
+local MainMaid = Maid.new()
+
+local Window = Library:CreateWindow("Onikami")
+local Folder = Window:AddFolder("Main")
+
+--//Functions
+local function Attack()
+    for _, Tool in ipairs(Client.Backpack:GetChildren()) do
+        Tool.Parent = Client.Character
+    end
+
+    pcall(function()
+        game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Katana:FireServer("Release")
+        game:GetService("ReplicatedStorage").Remotes.CombatRemotes.Fists:FireServer("Release")
+    end)
+end
+
+local function CheckCondition(Humanoid, HumanoidRootPart)
+    if not Humanoid.Parent.Parent then return end
+    if not HumanoidRootPart then return end
+    if not Humanoid then return end
+    if Humanoid.Health <= 0 then return end
+
+    return true
+end
+
+local function OnCharacterAdded(Character)
+    MainMaid:DoCleaning()
+
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+    local Humanoid = Character:WaitForChild("Humanoid")
+
+    local IsFarming = false
+
+    local function OnChildAdded(Object, Bool) --Remove debuffs
+        if not Bool and not Library.flags.Antistun then return end
+        if table.find(Exclusions, Object.Name) then return end
+        if not Object:IsA("StringValue") and not Object:IsA("BoolValue") then return end
+        
+        repeat task.wait()
+            Object:Destroy()
+        until Object.Parent == nil
+    end
+
+    Character.ChildAdded:Connect(OnChildAdded)
+
+    MainMaid:GiveTask(RunService.Stepped:Connect(function() --Noclip
+        if not Humanoid then return end
+        Humanoid:ChangeState(11)
+    end))
+
+    MainMaid:GiveTask(RunService.Heartbeat:Connect(function() --Autofarm
+        if IsFarming then return end
+        if not Library.flags.Autofarm then return end
+
+        IsFarming = true
+
+        local TargetMob = nil
+
+        for _, Mob in ipairs(workspace.LivingThings:GetChildren()) do
+            if not Library.flags.Autofarm then break end
+            if Mob.Name ~= Library.flags.TargetMob then continue end
+            if Players:GetPlayerFromCharacter(Mob) then continue end
+
+            local MobHumanoid = Mob:FindFirstChild("Humanoid")
+            local MobHumanoidRootPart = Mob:FindFirstChild("HumanoidRootPart")
+
+            if not CheckCondition(MobHumanoid, MobHumanoidRootPart) then continue end
+            if not TargetMob then TargetMob = Mob continue end
+
+            if MobHumanoid.Health < TargetMob.Humanoid.Health then
+                TargetMob = Mob
+            end
+        end
+        
+        repeat task.wait()
+            if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
+                HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
+                game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
+                continue
+            end
+
+            HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0,-5.5,0) * CFrame.Angles(math.rad(90),0,0)
+            Attack()
+        until not CheckCondition(TargetMob:FindFirstChild("Humanoid"), TargetMob:FindFirstChild("HumanoidRootPart")) or not CheckCondition(Humanoid, HumanoidRootPart) or not Library.flags.Autofarm
+
+        IsFarming = false
+    end))
+
+    for _, Object in ipairs(Character:GetChildren()) do 
+        OnChildAdded(Object, true)
+    end
+end
+--//Initialise
+task.spawn(OnCharacterAdded, Client.Character or Client.CharacterAdded:Wait())
+Client.CharacterAdded:Connect(OnCharacterAdded)
+
+Client.Idled:Connect(function() --Anti afk
+    game:GetService("VirtualUser"):CaptureController()
+    game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+end)
+
+local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...) --Anti fall damage
+    local Args = {...}
+    local Method = getnamecallmethod()
+    
+    if Method == "FireServer" and tostring(self) == "ThisOne" then
+        return wait(9e9)
+    end
+
+    return Old(self, ...)
+end))
+
+Folder:AddToggle({text = "Autofarm", flag = "Autofarm" })
+Folder:AddToggle({text = "Anti-Stun", flag = "Antistun" })
+Folder:AddList({text = "Mob", flag = "TargetMob", values = {"Slayer", "Demon", "Human"}})
+Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end})
+
+Library:Init()
+
+warn("Loaded script!")
