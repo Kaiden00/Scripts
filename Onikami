@@ -5,6 +5,7 @@ if not game:IsLoaded() then game.Loaded:Wait() end
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local VirtualUser =  game:GetService("VirtualUser")
 
 --//Imports
 local Maid = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
@@ -19,7 +20,8 @@ local Exclusions = {
 local MainMaid = Maid.new()
 
 local Window = Library:CreateWindow("Onikami")
-local Folder = Window:AddFolder("Main")
+local MainFolder = Window:AddFolder("Main")
+local CreditsFolder = Window:AddFolder("Credits")
 
 --//Functions
 local function Attack()
@@ -112,8 +114,8 @@ task.spawn(OnCharacterAdded, Client.Character or Client.CharacterAdded:Wait())
 Client.CharacterAdded:Connect(OnCharacterAdded)
 
 Client.Idled:Connect(function() --Anti afk
-    game:GetService("VirtualUser"):CaptureController()
-    game:GetService("VirtualUser"):ClickButton2(Vector2.new())
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new())
 end)
 
 local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...) --Anti fall damage
@@ -127,10 +129,13 @@ local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, .
     return Old(self, ...)
 end))
 
-Folder:AddToggle({text = "Autofarm", flag = "Autofarm" })
-Folder:AddToggle({text = "Anti-Stun", flag = "Antistun" })
-Folder:AddList({text = "Mob", flag = "TargetMob", values = {"Slayer", "Demon", "Human"}})
+MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm" })
+MainFolder:AddToggle({text = "Anti-Stun", flag = "Antistun" })
+MainFolder:AddList({text = "Mob", flag = "TargetMob", values = {"Slayer", "Demon", "Human"}})
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end})
+
+CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Library:Init()
 
