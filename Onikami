@@ -45,10 +45,8 @@ local function OnChildAdded(Object) --Remove debuffs
     if not Library.flags.Antidebuff then return end
     if table.find(Exclusions, Object.Name) then return end
     if not Object:IsA("StringValue") and not Object:IsA("BoolValue") then return end
-    
-    repeat task.wait()
-        Object:Destroy()
-    until Object.Parent == nil
+    task.wait()
+    Object:Destroy()
 end
 
 local function OnCharacterAdded(Character)
