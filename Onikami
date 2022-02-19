@@ -42,23 +42,22 @@ local function CheckCondition(Humanoid, HumanoidRootPart)
     return true
 end
 
+local function OnChildAdded(Object) --Remove debuffs
+    if not Library.flags.Antidebuff then return end
+    if table.find(Exclusions, Object.Name) then return end
+    if not Object:IsA("StringValue") and not Object:IsA("BoolValue") then return end
+    
+    repeat task.wait()
+        Object:Destroy()
+    until Object.Parent == nil
+end
+
 local function OnCharacterAdded(Character)
     MainMaid:DoCleaning()
 
     local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
     local Humanoid = Character:WaitForChild("Humanoid")
-
-    local IsFarming = false
-
-    local function OnChildAdded(Object, Bool) --Remove debuffs
-        if not Bool and not Library.flags.Antidebuff then return end
-        if table.find(Exclusions, Object.Name) then return end
-        if not Object:IsA("StringValue") and not Object:IsA("BoolValue") then return end
-        
-        repeat task.wait()
-            Object:Destroy()
-        until Object.Parent == nil
-    end
+    local TargetMob, TargetHumanoid, TargetHumanoidRootPart = nil, nil, nil
 
     Character.ChildAdded:Connect(OnChildAdded)
 
@@ -66,48 +65,43 @@ local function OnCharacterAdded(Character)
         if not Humanoid then return end
         Humanoid:ChangeState(11)
     end))
-
+    
     MainMaid:GiveTask(RunService.Heartbeat:Connect(function() --Autofarm
-        if IsFarming then return end
         if not Library.flags.Autofarm then return end
 
-        IsFarming = true
-
-        local TargetMob = nil
-
-        for _, Mob in ipairs(workspace.LivingThings:GetChildren()) do
-            if not Library.flags.Autofarm then break end
-            if Mob.Name ~= Library.flags.TargetMob then continue end
-            if Players:GetPlayerFromCharacter(Mob) then continue end
-
-            local MobHumanoid = Mob:FindFirstChild("Humanoid")
-            local MobHumanoidRootPart = Mob:FindFirstChild("HumanoidRootPart")
-
-            if not CheckCondition(MobHumanoid, MobHumanoidRootPart) then continue end
-            if not TargetMob then TargetMob = Mob continue end
-
-            if MobHumanoid.Health < TargetMob.Humanoid.Health then
-                TargetMob = Mob
+        if not TargetMob then
+            for _, Mob in ipairs(workspace.LivingThings:GetChildren()) do
+                if not Library.flags.Autofarm then break end
+                if Mob.Name ~= Library.flags.TargetMob then continue end
+                if Players:GetPlayerFromCharacter(Mob) then continue end
+    
+                local MobHumanoid = Mob:FindFirstChild("Humanoid")
+                local MobHumanoidRootPart = Mob:FindFirstChild("HumanoidRootPart")
+    
+                if not CheckCondition(MobHumanoid, MobHumanoidRootPart) then continue end
+                if not TargetHumanoid then TargetHumanoid = MobHumanoid continue end
+    
+                if MobHumanoid.Health < TargetHumanoid.Health then
+                    TargetHumanoid = MobHumanoid
+                    TargetHumanoidRootPart = MobHumanoidRootPart
+                end
             end
+        end; TargetMob = TargetHumanoid.Parent
+
+        if not CheckCondition(TargetHumanoid, TargetHumanoidRootPart) or not CheckCondition(Humanoid, HumanoidRootPart) or not Library.flags.Autofarm then 
+            TargetMob, TargetHumanoid, TargetHumanoidRootPart = nil, nil, nil
+            return
         end
 
-        repeat task.wait()
-            if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
-                HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
-                game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
-                continue
-            end
+        if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
+            HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
+            game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
+            return
+        end
 
-            HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0,-5.5,0) * CFrame.Angles(math.rad(90),0,0)
-            Attack()
-        until not CheckCondition(TargetMob:FindFirstChild("Humanoid"), TargetMob:FindFirstChild("HumanoidRootPart")) or not CheckCondition(Humanoid, HumanoidRootPart) or not Library.flags.Autofarm
-
-        IsFarming = false
+        HumanoidRootPart.CFrame = TargetHumanoidRootPart.CFrame * CFrame.new(0,-5.5,0) * CFrame.Angles(math.rad(90),0,0)
+        Attack()
     end))
-
-    for _, Object in ipairs(Character:GetChildren()) do 
-        OnChildAdded(Object, true)
-    end
 end
 --//Initialise
 task.spawn(OnCharacterAdded, Client.Character or Client.CharacterAdded:Wait())
@@ -130,7 +124,12 @@ local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, .
 end))
 
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm" })
-MainFolder:AddToggle({text = "Anti-Debuff", flag = "Antidebuff" })
+MainFolder:AddToggle({text = "Anti-Debuff", flag = "Antidebuff", callback = function()
+    if not Client.Character then return end
+    for _, Object in ipairs(Client.Character:GetChildren()) do 
+        OnChildAdded(Object)
+    end
+end})
 MainFolder:AddList({text = "Mob", flag = "TargetMob", values = {"Slayer", "Demon", "Human"}})
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end})
 
