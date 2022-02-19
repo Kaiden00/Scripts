@@ -76,9 +76,10 @@ local function OnCharacterAdded(Character)
 
             if MobHumanoid.Health < TargetHumanoid.Health then
                 TargetHumanoid = MobHumanoid
-                TargetHumanoidRootPart = MobHumanoidRootPart
             end
-        end; TargetMob = TargetHumanoid.Parent
+        end
+        TargetMob = TargetHumanoid.Parent
+        TargetHumanoidRootPart = TargetMob.HumanoidRootPart
     end
 
     MainMaid:GiveTask(RunService.Stepped:Connect(function() --Noclip
@@ -88,14 +89,16 @@ local function OnCharacterAdded(Character)
 
     MainMaid:GiveTask(RunService.Heartbeat:Connect(function() --Autofarm
         if not Library.flags.Autofarm then return end
+        if not CheckCondition(Humanoid, HumanoidRootPart) then return end
         SearchMob()
-        
-        if not CheckCondition(TargetHumanoid, TargetHumanoidRootPart) or not CheckCondition(Humanoid, HumanoidRootPart) or not Library.flags.Autofarm then 
+
+        if not CheckCondition(TargetHumanoid, TargetHumanoidRootPart) then
             TargetMob, TargetHumanoid, TargetHumanoidRootPart = nil, nil, nil
             return
         end
         
-        if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
+        if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" and Client.Quest.AmountMax.Value <= 8 then --Auto quest
+            pcall(function() Client.PlayerGui.GUI.QuestFrame.Drop.LocalScript.RemoteEvent:FireServer() end)
             HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
             return
@@ -105,6 +108,7 @@ local function OnCharacterAdded(Character)
         Attack()
     end))
 end
+
 --//Initialise
 task.spawn(OnCharacterAdded, Client.Character or Client.CharacterAdded:Wait())
 Client.CharacterAdded:Connect(OnCharacterAdded)
