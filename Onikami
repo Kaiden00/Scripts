@@ -97,8 +97,8 @@ local function OnCharacterAdded(Character)
             return
         end
         
-        if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" and Client.Quest.AmountMax.Value <= 8 then --Auto quest
-            pcall(function() Client.PlayerGui.GUI.QuestFrame.Drop.LocalScript.RemoteEvent:FireServer() end)
+        if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" or Client.Quest.AmountMax.Value > 8 then --Auto quest
+            Client.PlayerGui.GUI.QuestFrame.Drop.LocalScript.RemoteEvent:FireServer()
             HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
             return
