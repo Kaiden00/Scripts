@@ -51,7 +51,7 @@ local function OnCharacterAdded(Character)
     local IsFarming = false
 
     local function OnChildAdded(Object, Bool) --Remove debuffs
-        if not Bool and not Library.flags.Antistun then return end
+        if not Bool and not Library.flags.Antidebuff then return end
         if table.find(Exclusions, Object.Name) then return end
         if not Object:IsA("StringValue") and not Object:IsA("BoolValue") then return end
         
@@ -130,7 +130,7 @@ local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, .
 end))
 
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm" })
-MainFolder:AddToggle({text = "Anti-Stun", flag = "Antistun" })
+MainFolder:AddToggle({text = "Anti-Debuff", flag = "Antidebuff" })
 MainFolder:AddList({text = "Mob", flag = "TargetMob", values = {"Slayer", "Demon", "Human"}})
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Delete, callback = function() Library:Close() end})
 
