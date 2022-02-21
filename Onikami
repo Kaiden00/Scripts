@@ -96,9 +96,11 @@ local function OnCharacterAdded(Character)
         end
         
         if Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Slayer" then --Auto quest
-            Client.PlayerGui.GUI.QuestFrame.Drop.LocalScript.RemoteEvent:FireServer()
             HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
+        elseif not Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Demon" and Client.PlayerFolder.Info.HasFinalSelection.Value then --Auto quest
+            HumanoidRootPart.CFrame = workspace.IntNpcs.Mission.HumanoidRootPart.CFrame
+            game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("SlayerMission")
             return
         end
 
@@ -120,7 +122,7 @@ local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, .
     local Args = {...}
     local Method = getnamecallmethod()
     
-    if Method == "FireServer" and tostring(self) == "ThisOne" then
+    if Method == "FireServer" and tostring(self) == "ThisOne" or tostring(self) == "NT" then
         return wait(9e9)
     end
 
