@@ -99,7 +99,7 @@ local function OnCharacterAdded(Character)
             HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
         elseif not Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Demon" and Client.PlayerFolder.Info.HasFinalSelection.Value then --Auto quest
-            HumanoidRootPart.CFrame = CFrame.new(-2217.34326171875, 265.1996154785156, -4149.2490234375)
+            HumanoidRootPart.CFrame = workspace.IntNpcs.Mission.HumanoidRootPart.CFrame * CFrame.new(0,-7,0) * CFrame.Angles(math.rad(90),0,0)
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("SlayerMission")
             return
         end
