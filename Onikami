@@ -99,7 +99,7 @@ local function OnCharacterAdded(Character)
             HumanoidRootPart.CFrame = workspace.IntNpcs.MissionD.HumanoidRootPart.CFrame
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("MissionDemon")
         elseif not Character.Values.Demon.Value and not Client.Quest.IsActive.Value and Library.flags.TargetMob == "Demon" and Client.PlayerFolder.Info.HasFinalSelection.Value then --Auto quest
-            HumanoidRootPart.CFrame = workspace.IntNpcs.Mission.HumanoidRootPart.CFrame
+            HumanoidRootPart.CFrame = CFrame.new(-2217.34326171875, 265.1996154785156, -4149.2490234375)
             game:GetService("ReplicatedStorage").Remotes.GiverQuest:FireServer("SlayerMission")
             return
         end
@@ -118,7 +118,7 @@ Client.Idled:Connect(function() --Anti afk
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
-local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...) --Anti fall damage
+local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...) --Anti-fall damage and anti-cheat bypass.
     local Args = {...}
     local Method = getnamecallmethod()
     
