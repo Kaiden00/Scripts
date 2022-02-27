@@ -50,6 +50,10 @@ local function OnCharacterAdded(Character)
     MainMaid:GiveTask(LootFolder.ChildAdded:Connect(OnChildAdded))
     MainMaid:GiveTask(Client.Backpack.ChildAdded:Connect(StoreItems))
     MainMaid:GiveTask(Character.ChildAdded:Connect(StoreItems)) --who gives a shit
+
+    for _, Object in ipairs(LootFolder:GetChildren()) do
+        OnChildAdded(Object)
+    end
 end
 
 task.spawn(function()
