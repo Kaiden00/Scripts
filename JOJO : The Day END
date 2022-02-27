@@ -38,6 +38,8 @@ local function StoreItems()
     end
 
     for _, Object in ipairs(Client.Character:GetChildren()) do
+        if not Object:IsA("Tool") then continue end
+        
         task.spawn(function()
             game:GetService("ReplicatedStorage").RequestStore:InvokeServer()
         end)
