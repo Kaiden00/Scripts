@@ -70,7 +70,7 @@ end})
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
-Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.Insert, callback = function() Library:Close() end})
+Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 Library:Init()
 
 warn("Script loaded!")
