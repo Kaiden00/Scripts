@@ -31,11 +31,12 @@ end
 
 local function StoreItems()
     if not Library.flags.Autostore then return end
-
+    task.wait()
+    
     for _, Object in ipairs(Client.Backpack:GetChildren()) do
         Object.Parent = Client.Character
     end
-    
+
     for _, Object in ipairs(Client.Character:GetChildren()) do
         task.spawn(function()
             game:GetService("ReplicatedStorage").RequestStore:InvokeServer()
