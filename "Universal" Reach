@@ -10,16 +10,13 @@ local Window = Library:CreateWindow("Universal Sword Aura")
 
 local MainFolder = Window:AddFolder("Main")
 local CreditsFolder = Window:AddFolder("Credits")
+
 local Toggle = MainFolder:AddToggle({text = "Sword Aura", flag = "SwordAura" })
 
 local Client = Players.LocalPlayer 
 
 local Characters = {}
 local Signals = {}
-
-local Settings = {
-    Distance = 35
-}
 
 local function RemoveCharacter(Character, Signal)
     if Signals[Character] and not Signal then 
@@ -39,7 +36,7 @@ local function OnPlayerAdded(Player)
         local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
         
         Signals[Character] = RunService.Stepped:Connect(function()
-            if Client:DistanceFromCharacter(HumanoidRootPart.Position) > Settings.Distance then
+            if Client:DistanceFromCharacter(HumanoidRootPart.Position) > Library.flags.DistanceSlider then
                 RemoveCharacter(Character, true)
                 return
             end
@@ -71,6 +68,11 @@ RunService.RenderStepped:Connect(function()
     local Tool = Client.Backpack:FindFirstChildWhichIsA("Tool") or Character:FindFirstChildWhichIsA("Tool")
     if not Tool then return end
     
+    local Handle = Tool:FindFirstChild("Handle")
+    if not Handle then return end
+    
+    --Handle.Size = Vector3.new(Library.flags.DistanceSlider, Library.flags.DistanceSlider, Library.flags.DistanceSlider)
+    
     for Index = 1, #Characters do
         local Character = Characters[Index]
         if not Character or not Character.Parent or not Character:FindFirstChild("HumanoidRootPart") then 
@@ -84,8 +86,8 @@ RunService.RenderStepped:Connect(function()
             if not Part:IsA("BasePart") then continue end
             if Part:FindFirstChildWhichIsA("TouchTransmitter") then continue end
             
-            firetouchinterest(Part, Tool.Handle, 0)
-            firetouchinterest(Part, Tool.Handle, 1)
+            firetouchinterest(Part, Handle, 0)
+            firetouchinterest(Part, Handle, 1)
         end 
     end
 end)
@@ -96,6 +98,8 @@ for _, Player in ipairs(Players:GetPlayers()) do
 end 
 
 Window:AddBind({text = "Menu Toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
+MainFolder:AddSlider({text = "Distance", flag = "DistanceSlider", min = 25, max = 1000})
+
 CreditsFolder:AddLabel({text = "Script: Kaiden#2444"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
