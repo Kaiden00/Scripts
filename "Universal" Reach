@@ -1,0 +1,102 @@
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+
+local Window = Library:CreateWindow("Universal Sword Aura")
+
+local MainFolder = Window:AddFolder("Main")
+local CreditsFolder = Window:AddFolder("Credits")
+local Toggle = MainFolder:AddToggle({text = "Sword Aura", flag = "SwordAura" })
+
+local Client = Players.LocalPlayer 
+
+local Characters = {}
+local Signals = {}
+
+local Settings = {
+    Distance = 35
+}
+
+local function RemoveCharacter(Character, Signal)
+    if Signals[Character] and not Signal then 
+        Signals[Character]:Disconnect()
+    end 
+    
+    local Index = table.find(Characters, Character)
+    if not Index then return end
+    table.remove(Characters, Index)
+end
+
+local function OnPlayerAdded(Player)
+    if Player == Client then return end
+    
+    local function OnCharacterAdded(Character)
+        local Humanoid = Character:WaitForChild("Humanoid")
+        local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+        
+        Signals[Character] = RunService.Stepped:Connect(function()
+            if Client:DistanceFromCharacter(HumanoidRootPart.Position) > Settings.Distance then
+                RemoveCharacter(Character, true)
+                return
+            end
+            
+            if table.find(Characters, Character) then return end
+            Characters[#Characters + 1] = Character
+        end)
+        
+        Humanoid.HealthChanged:Connect(function(Health)
+            if Health > 0 then return end 
+            RemoveCharacter(Character)
+        end)
+    end
+    
+    Player.CharacterAdded:Connect(OnCharacterAdded)
+    Player.CharacterRemoving:Connect(RemoveCharacter)
+    
+    if Player.Character then
+        OnCharacterAdded(Player.Character)
+    end 
+end
+
+RunService.Heartbeat:Connect(function()
+    if not Library.flags.SwordAura then return end
+    
+    local Character = Client.Character
+    if not Character then return end
+    
+    local Tool = Client.Backpack:FindFirstChildWhichIsA("Tool") or Character:FindFirstChildWhichIsA("Tool")
+    if not Tool then return end
+    
+    for Index = 1, #Characters do
+        local Character = Characters[Index]
+        if not Character or not Character.Parent or not Character:FindFirstChild("HumanoidRootPart") then 
+            table.remove(Characters, Index)
+            continue
+        end
+        
+        Tool:Activate()
+        
+        for _, Part in ipairs(Character:GetChildren()) do 
+            if not Part:IsA("BasePart") then continue end
+            if Part:FindFirstChildWhichIsA("TouchTransmitter") then continue end
+            
+            firetouchinterest(Part, Tool.Handle, 0)
+            firetouchinterest(Part, Tool.Handle, 1)
+        end 
+    end
+end)
+
+Players.PlayerAdded:Connect(OnPlayerAdded)
+for _, Player in ipairs(Players:GetPlayers()) do 
+    task.spawn(OnPlayerAdded, Player)
+end 
+
+Window:AddBind({text = "Menu Toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
+CreditsFolder:AddLabel({text = "Script: Kaiden#2444"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
+
+Library:Init()
