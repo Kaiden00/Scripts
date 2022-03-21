@@ -66,7 +66,7 @@ RunService.RenderStepped:Connect(function()
     if not Character then return end
     
     local Tool = Client.Backpack:FindFirstChildWhichIsA("Tool") or Character:FindFirstChildWhichIsA("Tool")
-    if not Tool then return end
+    if not Tool or Tool.Parent == Client.Backpack then return end
     
     local Handle = Tool:FindFirstChild("Handle")
     if not Handle then return end
