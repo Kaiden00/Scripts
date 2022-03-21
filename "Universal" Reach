@@ -62,7 +62,7 @@ local function OnPlayerAdded(Player)
     end 
 end
 
-RunService.Heartbeat:Connect(function()
+RunService.RenderStepped:Connect(function()
     if not Library.flags.SwordAura then return end
     
     local Character = Client.Character
