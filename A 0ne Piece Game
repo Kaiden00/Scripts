@@ -1,0 +1,30 @@
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local Client = Players.LocalPlayer
+
+local function GrabFruit(Object, CanYield)
+    if not CanYield then task.wait(1) end
+    
+    if not Object:IsA("Tool") then return end
+    if Object:IsDescendantOf(workspace.Entities) then return end
+    
+    local BasePart = Object:FindFirstChildWhichIsA("BasePart")
+    if not BasePart then return end
+    
+    local Character = Client.Character or Client.CharacterAdded:Wait()
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+    
+    repeat task.wait() 
+        HumanoidRootPart.CFrame = BasePart.CFrame
+    until Object.Parent == Client.Backpack or Object.Parent == Character
+end
+
+workspace.DescendantAdded:Connect(GrabFruit)
+
+for _, Child in ipairs(workspace:GetDescendants()) do 
+    GrabFruit(Child, true)
+end 
