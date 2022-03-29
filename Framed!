@@ -28,6 +28,7 @@ TextLabel.Font = Enum.Font.SourceSansSemibold
 TextLabel.TextSize = 20
 TextLabel.TextColor3 = Color3.new(1, 1, 1)
 TextLabel.TextStrokeTransparency = 0
+TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
 TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
 TextLabel.ZIndex = 10
 TextLabel.Parent = BillboardGui
@@ -37,13 +38,12 @@ local function ESP()
     if tostring(Client.Team) == "Police" then return end
 
     local PlayerTeam = TargetPlayer and tostring(TargetPlayer.Team)
-    
+
     if not TargetPlayer or not TargetPlayer.Parent or PlayerTeam and PlayerTeam == "Lobby" then 
         TargetPlayer = GetTargetFunction:InvokeServer(Client)
         if not TargetPlayer then return end
-        
-        TextLabel.Text = "TARGET: "..TargetPlayer.Name
-        BillboardGui.Name = TargetPlayer.Name
+
+        TextLabel.Text = "TARGET"
         BillboardGui.Adornee = TargetPlayer.Character.Head
     end
 end
