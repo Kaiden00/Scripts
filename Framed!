@@ -44,12 +44,10 @@ local UndercoverGUI = CreateEsp("UNDERCOVER", Color3.fromRGB(0, 0, 255))
 local function ESP()
     local PlayerTeam = TargetPlayer and tostring(TargetPlayer.Team)
 
-    if not TargetPlayer or not TargetPlayer.Parent or PlayerTeam and PlayerTeam == "Lobby" then 
-        if tostring(Client.Team) ~= "Lobby" and tostring(Client.Team) ~= "Police" then 
-            TargetPlayer = GetTargetFunction:InvokeServer(Client)
-            if not TargetPlayer then return end
-            TargetGUI.Adornee = TargetPlayer.Character.Head
-        end
+    if tostring(Client.Team) ~= "Lobby" and tostring(Client.Team) ~= "Police" then 
+        TargetPlayer = GetTargetFunction:InvokeServer(Client)
+        if not TargetPlayer then return end
+        TargetGUI.Adornee = TargetPlayer.Character.Head
     end
 
     if not UndercoverPlayer or not UndercoverPlayer.Parent then
@@ -61,6 +59,10 @@ local function ESP()
     end 
 end
 
-RunService.Heartbeat:Connect(ESP)
+task.spawn(function()
+    while task.wait(1) do
+        pcall(ESP)
+    end
+end)
 
 warn("Loaded")
