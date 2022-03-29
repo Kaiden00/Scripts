@@ -8,44 +8,57 @@ local Client = Players.LocalPlayer
 local GetTargetFunction = workspace.Events.GetTargetLocal
 
 local TargetPlayer = nil
+local UndercoverPlayer = nil
 
 local ESPFolder = Instance.new("Folder")
 ESPFolder.Name = "ESPFolder"
 ESPFolder.Parent = game:GetService("CoreGui")
 
-local BillboardGui = Instance.new("BillboardGui")
-local TextLabel = Instance.new("TextLabel")
+local function CreateEsp(Name, Color)
+    local BillboardGui = Instance.new("BillboardGui")
+    local TextLabel = Instance.new("TextLabel")
 
-BillboardGui.Size = UDim2.new(0, 100, 0, 150)
-BillboardGui.StudsOffset = Vector3.new(0, 1, 0)
-BillboardGui.AlwaysOnTop = true
-BillboardGui.Parent = ESPFolder
+    BillboardGui.Size = UDim2.new(0, 100, 0, 150)
+    BillboardGui.StudsOffset = Vector3.new(0, 1, 0)
+    BillboardGui.AlwaysOnTop = true
+    BillboardGui.Parent = ESPFolder
 
-TextLabel.BackgroundTransparency = 1
-TextLabel.Position = UDim2.new(0, 0, 0, -50)
-TextLabel.Size = UDim2.new(0, 100, 0, 100)
-TextLabel.Font = Enum.Font.SourceSansSemibold
-TextLabel.TextSize = 20
-TextLabel.TextColor3 = Color3.new(1, 1, 1)
-TextLabel.TextStrokeTransparency = 0
-TextLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
-TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
-TextLabel.ZIndex = 10
-TextLabel.Parent = BillboardGui
+    TextLabel.Text = Name
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Position = UDim2.new(0, 0, 0, -50)
+    TextLabel.Size = UDim2.new(0, 100, 0, 100)
+    TextLabel.Font = Enum.Font.SourceSansSemibold
+    TextLabel.TextSize = 20
+    TextLabel.TextStrokeTransparency = 0
+    TextLabel.TextColor3 = Color
+    TextLabel.TextYAlignment = Enum.TextYAlignment.Bottom
+    TextLabel.ZIndex = 10
+    TextLabel.Parent = BillboardGui
+
+    return BillboardGui
+end
+
+local TargetGUI = CreateEsp("TARGET", Color3.fromRGB(255, 0, 0))
+local UndercoverGUI = CreateEsp("UNDERCOVER", Color3.fromRGB(0, 0, 255))
 
 local function ESP()
-    if tostring(Client.Team) == "Lobby" then return end
-    if tostring(Client.Team) == "Police" then return end
-
     local PlayerTeam = TargetPlayer and tostring(TargetPlayer.Team)
 
     if not TargetPlayer or not TargetPlayer.Parent or PlayerTeam and PlayerTeam == "Lobby" then 
-        TargetPlayer = GetTargetFunction:InvokeServer(Client)
-        if not TargetPlayer then return end
-
-        TextLabel.Text = "TARGET"
-        BillboardGui.Adornee = TargetPlayer.Character.Head
+        if tostring(Client.Team) ~= "Lobby" and tostring(Client.Team) ~= "Police" then 
+            TargetPlayer = GetTargetFunction:InvokeServer(Client)
+            if not TargetPlayer then return end
+            TargetGUI.Adornee = TargetPlayer.Character.Head
+        end
     end
+
+    if not UndercoverPlayer or not UndercoverPlayer.Parent then
+        for _, Player in ipairs(Players:GetPlayers()) do
+            if not Player.IsUndercover.Value then continue end
+            UndercoverPlayer = Player
+            UndercoverGUI.Adornee = Player.Character.Head
+        end
+    end 
 end
 
 RunService.Heartbeat:Connect(ESP)
