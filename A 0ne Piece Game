@@ -80,7 +80,13 @@ local function GrabFruit(Object, CanYield)
     local Character = Client.Character or Client.CharacterAdded:Wait()
     local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
     
-    repeat task.wait() 
+    local CurrentTime = time()
+        
+    repeat task.wait()
+        if time() - CurrentTime > 5 then --just in case it breaks
+            break 
+        end
+        
         HumanoidRootPart.CFrame = BasePart.CFrame
     until Object.Parent == Client.Backpack or Object.Parent == Character
 end
