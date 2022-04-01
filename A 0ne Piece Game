@@ -5,6 +5,9 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local Client = Players.LocalPlayer
+if not Client.Character then 
+    Client.CharacterAdded:Wait()
+end
 
 local foundAnything = ""
 
@@ -91,6 +94,8 @@ end
 syn.queue_on_teleport([[
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
 ]])
+
+task.wait(1)
 
 while wait() do
     pcall(function()
