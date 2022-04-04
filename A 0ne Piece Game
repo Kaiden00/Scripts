@@ -80,8 +80,13 @@ local function GrabFruit(Object, CanYield)
     local Character = Client.Character or Client.CharacterAdded:Wait()
     local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
     
+    local Touch = BasePart:FindFirstChildWhichIsA("TouchTransmitter", true)
+    warn(Touch)
+    
     repeat task.wait()
-        print(BasePart.Name)
+        HumanoidRootPart.CFrame = BasePart.CFrame
+        firetouchinterest(HumanoidRootPart, Touch.Parent, 0)
+        firetouchinterest(HumanoidRootPart, Touch.Parent, 1)
     until Object.Parent == Client.Backpack or Object.Parent == Character
 end
 
