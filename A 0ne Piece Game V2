@@ -299,6 +299,7 @@ getgenv().UnloadScript = function()
 end 
 
 MainMaid:GiveTask(Client.CharacterAdded:Connect(OnCharacterAdded))
+
 if Client.Character then
     task.spawn(OnCharacterAdded, Client.Character)
 end 
@@ -308,7 +309,7 @@ MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
     OnMobAdded(Mob)
 end))
 
-workspace.DescendantAdded:Connect(GrabFruit)
+MainMaid:GiveTask(workspace.DescendantAdded:Connect(GrabFruit))
 
 for _, Mob in ipairs(Entities:GetChildren()) do 
     task.spawn(OnMobAdded, Mob)
