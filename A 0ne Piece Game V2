@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 --//Imports
+local ESPLibrary = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
 local MaidClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
 local SignalClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal.lua"))()
@@ -22,6 +23,7 @@ local MainFolder = Window:AddFolder("Main")
 local TeleportFolder = Window:AddFolder("Teleports")
 local SettingsFolder = Window:AddFolder("Settings")
 local CreditsFolder = Window:AddFolder("Credits")
+local ESPFolder = Window:AddFolder("ESP")
 
 local Entities = workspace.Entities
 local MobList = {}
@@ -202,6 +204,7 @@ getgenv().UnloadScript = function()
         Library:Close()
     end
     
+    ESPLibrary:Toggle(false)
     Library.base:ClearAllChildren()
     Library.base:Destroy()
 end 
@@ -249,6 +252,12 @@ table.sort(MobNames, function(A, B)
     return A < B
 end)
 
+--ESP folder
+
+ESPFolder:AddToggle({text = "Player ESP", callback = function()
+    ESPLibrary:Toggle(not ESPLibrary.Enabled)
+end})
+
 --Settings folder
 SettingsFolder:AddSlider({text = "Farm Distance", flag = "FarmDistance", min = -10, max = 8})
 SettingsFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
@@ -259,11 +268,11 @@ MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
 
 MainFolder:AddToggle({text = "Fruit Farm[S^X]", callback = function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
     syn.queue_on_teleport([[
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game%20V2"))() --re execute fruit farmer
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))() --re execute fruit farmer
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game%20V2"))() 
     ]])
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
 end})
 
 MainFolder:AddToggle({text = "Chest Farm", flag = "ChestFarm", callback = function()
@@ -289,6 +298,7 @@ end})
 --Credits folder
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
+CreditsFolder:AddLabel({text = "ESP Library: Kiriot"})
 
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 Library:Init()
