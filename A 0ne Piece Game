@@ -81,13 +81,14 @@ local function GrabFruit(Object, CanYield)
     local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
     
     local Touch = BasePart:FindFirstChildWhichIsA("TouchTransmitter", true)
-    warn(Touch)
     
     repeat task.wait()
-        HumanoidRootPart.CFrame = BasePart.CFrame
-        firetouchinterest(HumanoidRootPart, Touch.Parent, 0)
-        firetouchinterest(HumanoidRootPart, Touch.Parent, 1)
-    until Object.Parent == Client.Backpack or Object.Parent == Character
+        pcall(function()
+            HumanoidRootPart.CFrame = BasePart.CFrame
+            firetouchinterest(HumanoidRootPart, Touch.Parent, 0)
+            firetouchinterest(HumanoidRootPart, Touch.Parent, 1)
+        end)
+    until not Object:IsDescendantOf(workspace)
 end
 
 workspace.DescendantAdded:Connect(GrabFruit)
@@ -96,11 +97,7 @@ for _, Child in ipairs(workspace:GetDescendants()) do
     GrabFruit(Child, true)
 end
 
-syn.queue_on_teleport([[
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
-]])
-
-task.wait(3)
+task.wait(1.5)
 
 while wait() do
     pcall(function()
