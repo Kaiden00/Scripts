@@ -20,6 +20,7 @@ local Window = Library:CreateWindow("A 0ne Piece Game")
 
 local MainFolder = Window:AddFolder("Main")
 local TeleportFolder = Window:AddFolder("Teleports")
+local SettingsFolder = Window:AddFolder("Settings")
 local CreditsFolder = Window:AddFolder("Credits")
 
 local Entities = workspace.Entities
@@ -86,7 +87,6 @@ local function GetQuest()
     end
 end
 
-
 local function IsAlive(Character)
     if not Character or not Character.Parent then return end
     local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
@@ -97,11 +97,36 @@ local function IsAlive(Character)
     return true
 end
 
-local function OnMobSpawned(Mob)
-    if table.find(MobList, Mob) then return end
+local function OnMobAdded(Mob)
+    local Index = table.find(MobList, Mob)
+    if Index then return end
+
     if Players:GetPlayerFromCharacter(Mob) then return end
     if not IsAlive(Mob) then return end
+    
     MobList[#MobList + 1] = Mob
+
+    MainMaid:GiveTask(Mob.AncestryChanged:Connect(function(_, Parent)
+        if not Parent or not Mob:IsDescendantOf(Entities) then 
+            table.remove(MobList, Index)
+        end 
+    end))
+end
+
+local function OnChestAdded(Chest)
+    if not Library.flags.ChestFarm then return end
+    if Library.flags.Autofarm then return end
+
+    local ClickDetectorPart = Chest:FindFirstChild("ClickDetectorPart")
+    if not ClickDetectorPart then return end
+
+    local ClickDetector = ClickDetectorPart:FindFirstChildWhichIsA("ClickDetector")
+    if not ClickDetector then return end
+
+    repeat task.wait() 
+        Client.Character.HumanoidRootPart.CFrame = ClickDetectorPart.CFrame
+        fireclickdetector(ClickDetector)
+    until not ClickDetector:IsDescendantOf(workspace) or not IsAlive(Client.Character) or not Library.flags.ChestFarm or Library.flags.Autofarm
 end
 
 local function GetMob()
@@ -135,23 +160,34 @@ local function OnCharacterAdded(Character)
             if not QuestFolder:FindFirstChildWhichIsA("Folder") then return end
         end
 
-        HumanoidRootPart.CFrame = CurrentMob.HumanoidRootPart.CFrame * CFrame.new(0,-10,0) * CFrame.Angles(math.rad(90),0,0)
+        local Rotation = 90
+        if Library.flags.FarmDistance > 0 then 
+            Rotation = -90
+        end
+
+        HumanoidRootPart.CFrame = CurrentMob.HumanoidRootPart.CFrame * CFrame.new(0,Library.flags.FarmDistance,0) * CFrame.Angles(math.rad(Rotation),0,0)
         Attack(CurrentMob.HumanoidRootPart.Position)
     end))
-
+    
     CharacterMaid:GiveTask(Signals["NameSignal"]:Connect(function()
+        if not Library.flags.Namehide then return end
         local NameTag = HumanoidRootPart:WaitForChild("OverheadUI", 3)
         if not NameTag then return end
         NameTag:Destroy()
     end))
 
-    if Library.flags.Namehide then
-        Signals["NameSignal"]:Fire()
-    end 
+    CharacterMaid:GiveTask(IslandFolder.DescendantAdded:Connect(function(Chest)
+        task.wait(0.05)
+        OnChestAdded(Chest)
+    end))
+
+    Signals["NameSignal"]:Fire()
+    for _, Chest in ipairs(IslandFolder:GetDescendants()) do
+        OnChestAdded(Chest)
+    end
 end
 
 --//Init
-
 if getgenv().UnloadScript then
     pcall(getgenv().UnloadScript)
 end
@@ -177,11 +213,11 @@ end
 
 MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
     task.wait(0.05)
-    OnMobSpawned(Mob)
+    OnMobAdded(Mob)
 end))
 
 for _, Mob in ipairs(Entities:GetChildren()) do 
-    task.spawn(OnMobSpawned, Mob)
+    task.spawn(OnMobAdded, Mob)
 end
 
 for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
@@ -213,17 +249,34 @@ table.sort(MobNames, function(A, B)
     return A < B
 end)
 
+--Settings folder
+SettingsFolder:AddSlider({text = "Farm Distance", flag = "FarmDistance", min = -10, max = 8})
+SettingsFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
+
 --Main folder
 MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
+
+MainFolder:AddToggle({text = "Fruit Farm[S^X]", callback = function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
+    syn.queue_on_teleport([[
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game%20V2"))() --re execute fruit farmer
+    ]])
+end})
+
+MainFolder:AddToggle({text = "Chest Farm", flag = "ChestFarm", callback = function()
+    for _, Chest in ipairs(IslandFolder:GetDescendants()) do
+        OnChestAdded(Chest)
+    end
+end})
+
 MainFolder:AddToggle({text = "Hide name", flag = "Namehide", callback = function()
     Signals["NameSignal"]:Fire()
 end})
 
 --Teleport folder
-TeleportFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
-
 TeleportFolder:AddList({text = "Islands", values = IslandFolder:GetChildren(), callback = function(IslandName)
     local Part = IslandFolder[IslandName]:FindFirstChildWhichIsA("SpawnLocation", true) or IslandFolder[IslandName]:FindFirstChildWhichIsA("BasePart", true)
     pcall(TweenTeleport, Part.Position)
