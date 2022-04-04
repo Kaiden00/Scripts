@@ -10,24 +10,27 @@ local TweenService = game:GetService("TweenService")
 --//Imports
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
 local MaidClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
-local SignalClass = loadstring(game:HttpGet('https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal.lua'))()
+local SignalClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal.lua"))()
 
 --//Variables
 local Client = game:GetService("Players").LocalPlayer
 local QuestFolder = Client:WaitForChild("Quests2")
 
 local Window = Library:CreateWindow("A 0ne Piece Game")
+
 local MainFolder = Window:AddFolder("Main")
+local TeleportFolder = Window:AddFolder("Teleports")
 local CreditsFolder = Window:AddFolder("Credits")
 
 local Entities = workspace.Entities
 local MobList = {}
 
-local MainMaid = MaidClass.new()
-
 local Signals = {
     ["NameSignal"] = SignalClass.new()
 }
+
+local MainMaid = MaidClass.new()
+local CharacterMaid = MaidClass.new()
 
 local AbilityEvent = ReplicatedStorage.Remotes.requestAbility
 local QuestEvent = ReplicatedStorage.Remotes.quest
@@ -38,11 +41,27 @@ local QuestModule = require(ReplicatedStorage.Modules.Shared.Database.Quests)
 
 local LastAttack = 0
 
+local MapFolder = workspace.Map
+local InteractableFolder = workspace.Interactables
+local IslandFolder = MapFolder.Islands
+
 --//Functions
+local function TweenTeleport(Position)
+    local HumanoidRootPart = Client.Character:FindFirstChild("HumanoidRootPart")
+    if not HumanoidRootPart or not Position then return end
+    
+    local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
+    local Tween = TweenService:Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position.X, Position.Y + 5, Position.Z)})
+    
+    Tween:Play()
+    Tween.Completed:Wait()
+end
+
 local function Attack(Position)
     if os.clock() - LastAttack < 0.2 then return end --need to do this shit since their combat is laggy as hell
     LastAttack = os.clock()
     AbilityEvent:FireServer("Fighting Style", "MouseButton1", CFrame.new(Position), FakePart, 5)
+    AbilityEvent:FireServer("Sword Style", "MouseButton1", CFrame.new(Position), FakePart, 5)
 end
 
 local function GetQuest()
@@ -97,20 +116,20 @@ local function GetMob()
 end
 
 local function OnCharacterAdded(Character)
-    MainMaid:DoCleaning()
+    CharacterMaid:DoCleaning()
 
     local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
     local Humanoid = Character:WaitForChild("Humanoid")
     local CurrentMob = nil
 
-    MainMaid:GiveTask(RunService.Heartbeat:Connect(function()
+    CharacterMaid:GiveTask(RunService.Heartbeat:Connect(function()
         if not Library.flags.Autofarm then return end
         if not IsAlive(Character) then return end
-        if not IsAlive(CurrentMob) then
+        if not IsAlive(CurrentMob) or CurrentMob.Name ~= Library.flags.TargetMob then
             CurrentMob = GetMob()
             return
         end
-
+        
         if Library.flags.AutoQuest then
             GetQuest()
             if not QuestFolder:FindFirstChildWhichIsA("Folder") then return end
@@ -120,7 +139,7 @@ local function OnCharacterAdded(Character)
         Attack(CurrentMob.HumanoidRootPart.Position)
     end))
 
-    MainMaid:GiveTask(Signals["NameSignal"]:Connect(function()
+    CharacterMaid:GiveTask(Signals["NameSignal"]:Connect(function()
         local NameTag = HumanoidRootPart:WaitForChild("OverheadUI", 3)
         if not NameTag then return end
         NameTag:Destroy()
@@ -132,15 +151,34 @@ local function OnCharacterAdded(Character)
 end
 
 --//Init
-Client.CharacterAdded:Connect(OnCharacterAdded)
+
+if getgenv().UnloadScript then
+    pcall(getgenv().UnloadScript)
+end
+
+getgenv().UnloadScript = function()
+    MainMaid:Destroy()
+    CharacterMaid:Destroy()
+    MainMaid = nil
+    CharacterMaid = nil
+
+    if Library.open then
+        Library:Close()
+    end
+    
+    Library.base:ClearAllChildren()
+    Library.base:Destroy()
+end 
+
+MainMaid:GiveTask(Client.CharacterAdded:Connect(OnCharacterAdded))
 if Client.Character then
     task.spawn(OnCharacterAdded, Client.Character)
 end 
 
-Entities.ChildAdded:Connect(function(Mob)
+MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
     task.wait(0.05)
     OnMobSpawned(Mob)
-end)
+end))
 
 for _, Mob in ipairs(Entities:GetChildren()) do 
     task.spawn(OnMobSpawned, Mob)
@@ -151,8 +189,13 @@ for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
 end
 
 --//Library
-
 local MobNames = {}
+local NPCList = {}
+
+for _, NPC in ipairs(InteractableFolder:GetChildren()) do 
+    if not NPC:FindFirstChild("HumanoidRootPart") then continue end
+    NPCList[#NPCList + 1] = NPC.Name 
+end 
 
 for _, Object in ipairs(ReplicatedStorage:GetChildren()) do
     if table.find(MobNames, Object.Name) then continue end
@@ -170,6 +213,7 @@ table.sort(MobNames, function(A, B)
     return A < B
 end)
 
+--Main folder
 MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
@@ -177,6 +221,19 @@ MainFolder:AddToggle({text = "Hide name", flag = "Namehide", callback = function
     Signals["NameSignal"]:Fire()
 end})
 
+--Teleport folder
+TeleportFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
+
+TeleportFolder:AddList({text = "Islands", values = IslandFolder:GetChildren(), callback = function(IslandName)
+    local Part = IslandFolder[IslandName]:FindFirstChildWhichIsA("SpawnLocation", true) or IslandFolder[IslandName]:FindFirstChildWhichIsA("BasePart", true)
+    pcall(TweenTeleport, Part.Position)
+end})
+
+TeleportFolder:AddList({text = "NPCs", values = NPCList, callback = function(NPCName)
+    pcall(TweenTeleport, InteractableFolder[NPCName].HumanoidRootPart.Position)
+end})
+
+--Credits folder
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
