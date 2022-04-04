@@ -22,8 +22,9 @@ local Window = Library:CreateWindow("A 0ne Piece Game")
 local MainFolder = Window:AddFolder("Main")
 local TeleportFolder = Window:AddFolder("Teleports")
 local SettingsFolder = Window:AddFolder("Settings")
-local CreditsFolder = Window:AddFolder("Credits")
 local ESPFolder = Window:AddFolder("ESP")
+local MiscFolder = Window:AddFolder("Misc")
+local CreditsFolder = Window:AddFolder("Credits")
 
 local Entities = workspace.Entities
 local MobList = {}
@@ -48,7 +49,66 @@ local MapFolder = workspace.Map
 local InteractableFolder = workspace.Interactables
 local IslandFolder = MapFolder.Islands
 
+local foundAnything = ""
+
 --//Functions
+local function Teleport() --credits to charwar
+    local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local actualHour = os.date("!*t").hour
+    local Deleted = false
+    local File = pcall(function()
+        AllIDs = game:GetService('HttpService'):JSONDecode(readfile("NotSameServers.json"))
+    end)
+    if not File then
+        table.insert(AllIDs, actualHour)
+        writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+    end
+    local Site;
+    if foundAnything == "" then
+        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+    else
+        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+    end
+    local ID = ""
+    if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+        foundAnything = Site.nextPageCursor
+    end
+    local num = 0;
+    for i,v in pairs(Site.data) do
+        local Possible = true
+        ID = tostring(v.id)
+        if tonumber(v.maxPlayers) > tonumber(v.playing) then
+            for _,Existing in pairs(AllIDs) do
+                if num ~= 0 then
+                    if ID == tostring(Existing) then
+                        Possible = false
+                    end
+                else
+                    if tonumber(actualHour) ~= tonumber(Existing) then
+                        local delFile = pcall(function()
+                            delfile("NotSameServers.json")
+                            AllIDs = {}
+                            table.insert(AllIDs, actualHour)
+                        end)
+                    end
+                end
+                num = num + 1
+            end
+            if Possible == true then
+                table.insert(AllIDs, ID)
+                wait()
+                pcall(function()
+                    writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
+                    wait()
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                end)
+                wait(4)
+            end
+        end
+    end
+end
+
 local function TweenTeleport(Position)
     local HumanoidRootPart = Client.Character:FindFirstChild("HumanoidRootPart")
     if not HumanoidRootPart or not Position then return end
@@ -142,6 +202,30 @@ local function GetMob()
     end 
 end
 
+local function GrabFruit(Object, Bool)
+    if not Library.flags.FruitFarm then return end
+    if not Bool then task.wait(1) end
+
+    if not Object:IsA("Tool") then return end
+    if Object:IsDescendantOf(workspace.Entities) then return end
+    
+    local BasePart = Object:FindFirstChildWhichIsA("BasePart")
+    if not BasePart then return end
+    
+    local Character = Client.Character or Client.CharacterAdded:Wait()
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+    
+    local Touch = BasePart:FindFirstChildWhichIsA("TouchTransmitter", true)
+    
+    repeat task.wait()
+        pcall(function()
+            HumanoidRootPart.CFrame = BasePart.CFrame
+            firetouchinterest(HumanoidRootPart, Touch.Parent, 0)
+            firetouchinterest(HumanoidRootPart, Touch.Parent, 1)
+        end)
+    until not Object:IsDescendantOf(workspace)
+end
+
 local function OnCharacterAdded(Character)
     CharacterMaid:DoCleaning()
 
@@ -184,6 +268,11 @@ local function OnCharacterAdded(Character)
     end))
 
     Signals["NameSignal"]:Fire()
+
+    for _, Child in ipairs(workspace:GetDescendants()) do 
+        GrabFruit(Child, true)
+    end
+
     for _, Chest in ipairs(IslandFolder:GetDescendants()) do
         OnChestAdded(Chest)
     end
@@ -219,6 +308,8 @@ MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
     OnMobAdded(Mob)
 end))
 
+workspace.DescendantAdded:Connect(GrabFruit)
+
 for _, Mob in ipairs(Entities:GetChildren()) do 
     task.spawn(OnMobAdded, Mob)
 end
@@ -252,8 +343,19 @@ table.sort(MobNames, function(A, B)
     return A < B
 end)
 
---ESP folder
+--Misc folder 
+MiscFolder:AddButton({text = "Server Hop", callback = function()
+    while task.wait() do 
+        pcall(function()
+            Teleport()
+            if foundAnything ~= "" then
+                Teleport()
+            end
+        end)
+    end 
+end})
 
+--ESP folder
 ESPFolder:AddToggle({text = "Player ESP", callback = function()
     ESPLibrary:Toggle(not ESPLibrary.Enabled)
 end})
@@ -267,12 +369,10 @@ MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
 MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
 
-MainFolder:AddToggle({text = "Fruit Farm[S^X]", callback = function()
-    syn.queue_on_teleport([[
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))() --re execute fruit farmer
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game%20V2"))() 
-    ]])
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
+MainFolder:AddToggle({text = "Fruit Farm", flag = "FruitFarm", callback = function()
+    for _, Child in ipairs(workspace:GetDescendants()) do 
+        GrabFruit(Child, true)
+    end
 end})
 
 MainFolder:AddToggle({text = "Chest Farm", flag = "ChestFarm", callback = function()
