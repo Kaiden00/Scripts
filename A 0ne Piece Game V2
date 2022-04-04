@@ -360,7 +360,7 @@ SettingsFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000,
 --Main folder
 MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
-MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
+MainFolder:AddToggle({text = "Auto Farm", flag = "Autofarm"})
 
 MainFolder:AddToggle({text = "Fruit Farm", flag = "FruitFarm", callback = function()
     for _, Child in ipairs(workspace:GetDescendants()) do 
