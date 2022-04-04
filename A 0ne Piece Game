@@ -97,6 +97,10 @@ for _, Child in ipairs(workspace:GetDescendants()) do
     GrabFruit(Child, true)
 end
 
+syn.queue_on_teleport([[
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/A%200ne%20Piece%20Game"))()
+]])
+
 task.wait(1.5)
 
 while wait() do
