@@ -300,7 +300,7 @@ if Client.Character then
 end 
 
 MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
-    task.wait(0.05)
+    Mob:WaitForChild("Humanoid", 5)
     OnMobAdded(Mob)
 end))
 
