@@ -1,0 +1,186 @@
+
+if not game:IsLoaded() then game.Loaded:Wait() end
+
+--//Services
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+
+--//Imports
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+local MaidClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
+local SignalClass = loadstring(game:HttpGet('https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Signal.lua'))()
+
+--//Variables
+local Client = game:GetService("Players").LocalPlayer
+local QuestFolder = Client:WaitForChild("Quests2")
+
+local Window = Library:CreateWindow("A 0ne Piece Game")
+local MainFolder = Window:AddFolder("Main")
+local CreditsFolder = Window:AddFolder("Credits")
+
+local Entities = workspace.Entities
+local MobList = {}
+
+local MainMaid = MaidClass.new()
+
+local Signals = {
+    ["NameSignal"] = SignalClass.new()
+}
+
+local AbilityEvent = ReplicatedStorage.Remotes.requestAbility
+local QuestEvent = ReplicatedStorage.Remotes.quest
+
+local FakePart = Instance.new("Part")
+
+local QuestModule = require(ReplicatedStorage.Modules.Shared.Database.Quests)
+
+local LastAttack = 0
+
+--//Functions
+local function Attack(Position)
+    if os.clock() - LastAttack < 0.2 then return end --need to do this shit since their combat is laggy as hell
+    LastAttack = os.clock()
+    AbilityEvent:FireServer("Fighting Style", "MouseButton1", CFrame.new(Position), FakePart, 5)
+end
+
+local function GetQuest()
+    local MobName = Library.flags.TargetMob
+    local Folder = QuestFolder:FindFirstChildWhichIsA("Folder")
+
+    if Folder then 
+        if Folder.Target.Value == MobName then
+            return 
+        end
+        QuestEvent:FireServer("Abandon", {Id = "1"})
+    end
+    
+    for Dummy, Data in pairs(QuestModule) do
+        if type(Data) ~= "table" then continue end
+        for I, Data2 in pairs(Data) do
+            if Data2.Target ~= MobName then continue end
+            Client.Character.HumanoidRootPart.CFrame = Dummy.CFrame
+            QuestEvent:FireServer("Accept", {Index = I, Model = Dummy})
+            break
+        end 
+    end
+end
+
+
+local function IsAlive(Character)
+    if not Character or not Character.Parent then return end
+    local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
+
+    if not Humanoid or not Character:FindFirstChild("HumanoidRootPart") then return end
+    if Humanoid.Health <= 0 then return end
+
+    return true
+end
+
+local function OnMobSpawned(Mob)
+    if table.find(MobList, Mob) then return end
+    if Players:GetPlayerFromCharacter(Mob) then return end
+    if not IsAlive(Mob) then return end
+    MobList[#MobList + 1] = Mob
+end
+
+local function GetMob()
+    for Index = 1, #MobList do 
+        local Mob = MobList[Index]
+        if not Library.flags.Autofarm then break end
+        if string.lower(Mob.Name) ~= string.lower(Library.flags.TargetMob) then continue end
+        if not IsAlive(Mob) then continue end
+
+        return Mob
+    end 
+end
+
+local function OnCharacterAdded(Character)
+    MainMaid:DoCleaning()
+
+    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+    local Humanoid = Character:WaitForChild("Humanoid")
+    local CurrentMob = nil
+
+    MainMaid:GiveTask(RunService.Heartbeat:Connect(function()
+        if not Library.flags.Autofarm then return end
+        if not IsAlive(Character) then return end
+        if not IsAlive(CurrentMob) then
+            CurrentMob = GetMob()
+            return
+        end
+
+        if Library.flags.AutoQuest then
+            GetQuest()
+            if not QuestFolder:FindFirstChildWhichIsA("Folder") then return end
+        end
+
+        HumanoidRootPart.CFrame = CurrentMob.HumanoidRootPart.CFrame * CFrame.new(0,-10,0) * CFrame.Angles(math.rad(90),0,0)
+        Attack(CurrentMob.HumanoidRootPart.Position)
+    end))
+
+    MainMaid:GiveTask(Signals["NameSignal"]:Connect(function()
+        local NameTag = HumanoidRootPart:WaitForChild("OverheadUI", 3)
+        if not NameTag then return end
+        NameTag:Destroy()
+    end))
+
+    if Library.flags.Namehide then
+        Signals["NameSignal"]:Fire()
+    end 
+end
+
+--//Init
+Client.CharacterAdded:Connect(OnCharacterAdded)
+if Client.Character then
+    task.spawn(OnCharacterAdded, Client.Character)
+end 
+
+Entities.ChildAdded:Connect(function(Mob)
+    task.wait(0.05)
+    OnMobSpawned(Mob)
+end)
+
+for _, Mob in ipairs(Entities:GetChildren()) do 
+    task.spawn(OnMobSpawned, Mob)
+end
+
+for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
+    Connection:Disable()
+end
+
+--//Library
+
+local MobNames = {}
+
+for _, Object in ipairs(ReplicatedStorage:GetChildren()) do
+    if table.find(MobNames, Object.Name) then continue end
+    if not Object:FindFirstChild("Data") then continue end
+    MobNames[#MobNames + 1] = Object.Name 
+end
+
+for _, Object in ipairs(Entities:GetChildren()) do
+    if table.find(MobNames, Object.Name) then continue end
+    if not Object:FindFirstChild("Data") then continue end
+    MobNames[#MobNames + 1] = Object.Name
+end
+
+table.sort(MobNames, function(A, B)
+    return A < B
+end)
+
+MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
+MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
+MainFolder:AddToggle({text = "Autofarm", flag = "Autofarm"})
+MainFolder:AddToggle({text = "Hide name", flag = "Namehide", callback = function()
+    Signals["NameSignal"]:Fire()
+end})
+
+CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
+
+Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
+Library:Init()
+
+warn("Loaded!")
