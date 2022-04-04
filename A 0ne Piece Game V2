@@ -171,7 +171,7 @@ end
 
 local function OnChestAdded(Chest)
     if not Library.flags.ChestFarm then return end
-    if Library.flags.Autofarm then return end
+    if Library.flags.MobFarm then return end
 
     local ClickDetectorPart = Chest:FindFirstChild("ClickDetectorPart")
     if not ClickDetectorPart then return end
@@ -182,13 +182,13 @@ local function OnChestAdded(Chest)
     repeat task.wait() 
         Client.Character.HumanoidRootPart.CFrame = ClickDetectorPart.CFrame
         fireclickdetector(ClickDetector)
-    until not ClickDetector:IsDescendantOf(workspace) or not IsAlive(Client.Character) or not Library.flags.ChestFarm or Library.flags.Autofarm
+    until not ClickDetector:IsDescendantOf(workspace) or not IsAlive(Client.Character) or not Library.flags.ChestFarm or Library.flags.MobFarm
 end
 
 local function GetMob()
     for Index = 1, #MobList do 
         local Mob = MobList[Index]
-        if not Library.flags.Autofarm then break end
+        if not Library.flags.MobFarm then break end
         if string.lower(Mob.Name) ~= string.lower(Library.flags.TargetMob) then continue end
         if not IsAlive(Mob) then continue end
 
@@ -235,7 +235,7 @@ local function OnCharacterAdded(Character)
     local CurrentMob = nil
 
     CharacterMaid:GiveTask(RunService.Heartbeat:Connect(function()
-        if not Library.flags.Autofarm then return end
+        if not Library.flags.MobFarm then return end
         if not IsAlive(Character) then return end
         if not IsAlive(CurrentMob) or CurrentMob.Name ~= Library.flags.TargetMob then
             CurrentMob = GetMob()
@@ -358,9 +358,9 @@ SettingsFolder:AddSlider({text = "Farm Distance", flag = "FarmDistance", min = -
 SettingsFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
 
 --Main folder
-MainFolder:AddList({text = "Mob", flag = "TargetMob", values = MobNames})
+MainFolder:AddList({text = "Target Mob", flag = "TargetMob", values = MobNames})
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
-MainFolder:AddToggle({text = "Auto Farm", flag = "Autofarm"})
+MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
 
 MainFolder:AddToggle({text = "Fruit Farm", flag = "FruitFarm", callback = function()
     for _, Child in ipairs(workspace:GetDescendants()) do 
