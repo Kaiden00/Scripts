@@ -125,6 +125,8 @@ CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
+Window:AddLabel({text = "Added Auto quest/Anti AFK"})
+
 
 Library:Init()
 
