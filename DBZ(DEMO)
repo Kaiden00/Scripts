@@ -9,20 +9,35 @@ end
 
 --//Variables
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+local QuestsData = require(game.ReplicatedStorage.Quests.QuestModule).Quests
 
 local Client = Players.LocalPlayer
 local LiveFolder = workspace.Main.Live
-local AttackEvent = game:GetService("ReplicatedStorage").Events.TryAttack
+
+local AttackEvent = ReplicatedStorage.Events.TryAttack
+local QuestEvent = ReplicatedStorage.RemoteEvents.AcceptQuest
 
 local Window = Library:CreateWindow("DBZ (DEMO)")
 local MainFolder = Window:AddFolder("Main")
+local CreditsFolder = Window:AddFolder("Credits")
 
+local CurrentQuest = Client:WaitForChild("Data"):WaitForChild("CurrentQuest")
 local TargetMob = nil
 
 --//Functions
+local function GetQuest()
+    for QuestNPC, Data in pairs(QuestsData) do
+        if table.find(Data.Requirements[1], Library.flags.Target) then
+            if CurrentQuest.Value == QuestNPC then return end
+            game:GetService("ReplicatedStorage").RemoteEvents.AcceptQuest:FireServer(true, QuestNPC)
+        end
+    end
+end
+
 local function IsAlive(Character)
     if not Character or not Character.Parent then return end
     local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
@@ -65,6 +80,10 @@ RunService.Heartbeat:Connect(function()
     if not IsAlive(TargetMob) or not ValidateMob(TargetMob) then
         return SetTargetMob()
     end
+
+    if Library.flags.AutoQuest and Library.flags.Target ~= "Farm all(Good if new)"  then
+        GetQuest()
+    end
     
     local VulnObject = Character.Occupied:FindFirstChild("Invulnerable")
     if VulnObject then VulnObject:Destroy() end --god mode
@@ -84,6 +103,10 @@ RunService.Heartbeat:Connect(function()
     })
 end)
 
+for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
+    Connection:Disable()
+end
+
 --//UI
 local MobNames = {}
 MobNames[1] = "Farm all(Good if new)"
@@ -96,6 +119,13 @@ end
 
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobNames})
 MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
+MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
+
+CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
+
+Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
+
 Library:Init()
 
 warn("Loaded script successfully")
