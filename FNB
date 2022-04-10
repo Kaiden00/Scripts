@@ -21,15 +21,7 @@ local KeysTable = {
     ["9"] = {A = "L4", S = "L3", D = "L2", F = "L1", Space = "Space", H = "R1", J = "R2", K = "R3", L = "R4"}
 }
 
-local Keys = nil
-local ArrowHolders = {}
 local Marked = {}
-
-local function ClearTable()
-   table.clear(ArrowHolders)
-   table.clear(Marked)
-   Keys = nil
-end
 
 RunService.Heartbeat:Connect(function()
     if not Library.flags.AutoPlayer then return end
@@ -39,28 +31,15 @@ RunService.Heartbeat:Connect(function()
     local SideMenu = Menu.Game:FindFirstChild(Menu.PlayerSide.Value)
     local IncomingNotes = SideMenu.Arrows.IncomingNotes
     
-    if not Keys then
-        Keys = KeysTable[tostring(#IncomingNotes:GetChildren())] or IncomingNotes:GetChildren()
-        for Key, Direction in pairs(Keys) do
-            Direction = tostring(Direction)
-            Holder = IncomingNotes:FindFirstChild(Direction) or IncomingNotes:FindFirstChild(Key)
-            if not Holder then continue end
-            ArrowHolders[#ArrowHolders + 1] = Holder
-            
-            Holder:SetAttribute("Direction", Direction)
-            Holder:SetAttribute("Key", Key)
-        end
-    end 
+    local Keys = KeysTable[tostring(#IncomingNotes:GetChildren())] or IncomingNotes:GetChildren()
     
-    for Index = 1, #ArrowHolders do
-        local Holder = ArrowHolders[Index]
-        local Objects = ArrowHolders[Index]:GetChildren()
+    for Key, Direction in pairs(Keys) do 
+        Direction = tostring(Direction)
         
-        local Direction = Holder:GetAttribute("Direction")
-        local Key = Holder:GetAttribute("Key")
+        local Holder = IncomingNotes:FindFirstChild(Direction) or IncomingNotes:FindFirstChild(Key)
+        if not Holder then continue end
         
-        for Index2 = 1, #Objects do 
-            local Object = Objects[Index2]
+        for _, Object in ipairs(Holder:GetChildren()) do 
             if table.find(Marked, Object) then continue end
             
             local Keybind = Keybinds:FindFirstChild(Direction) and Keybinds[Direction].Value
@@ -77,14 +56,14 @@ RunService.Heartbeat:Connect(function()
                 InputManager:SendKeyEvent(true, Enum.KeyCode[Keybind], false, nil)
                 repeat task.wait() until not Object or not Object:FindFirstChild("Frame") or Object.Frame.Bar.Size.Y.Scale <= 0
                 InputManager:SendKeyEvent(false, Enum.KeyCode[Keybind], false, nil)
-            end 
-        end 
-    end
+            end
+        end
+    end 
 end)
 
 PlayerGui.ChildAdded:Connect(function(Object)
     if Object:IsA("ScreenGui") and Object:FindFirstChild("Game") then
-        ClearTable()
+        table.clear(Marked)
         getgenv().Menu = Object
     end 
 end)
