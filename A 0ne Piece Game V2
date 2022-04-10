@@ -1,399 +1,108 @@
 
-if not game:IsLoaded() then game.Loaded:Wait() end
+if Debounce then
+    return
+end; getgenv().Debounce = true
 
---//Services
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-
---//Imports
-local ESPLibrary = loadstring(game:HttpGet("https://kiriot22.com/releases/ESP.lua"))()
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
-local MaidClass = loadstring(game:HttpGet("https://raw.githubusercontent.com/Quenty/NevermoreEngine/version2/Modules/Shared/Events/Maid.lua"))()
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
 
 --//Variables
-local Client = game:GetService("Players").LocalPlayer
-local QuestFolder = Client:WaitForChild("Quests2")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-local Window = Library:CreateWindow("A 0ne Piece Game")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
 
+local Client = Players.LocalPlayer
+local LiveFolder = workspace.Main.Live
+local AttackEvent = game:GetService("ReplicatedStorage").Events.TryAttack
+
+local Window = Library:CreateWindow("DBZ (DEMO)")
 local MainFolder = Window:AddFolder("Main")
-local TeleportFolder = Window:AddFolder("Teleports")
-local ESPFolder = Window:AddFolder("ESP")
-local MiscFolder = Window:AddFolder("Misc")
-local SettingsFolder = Window:AddFolder("Settings")
 local CreditsFolder = Window:AddFolder("Credits")
 
-local Entities = workspace.Entities
-local MapFolder = workspace.Map
-local InteractableFolder = workspace.Interactables
-local IslandFolder = MapFolder.Islands
 
-local MobList = {}
-local MobNames = {}
-local NPCList = {}
-
-local MainMaid = MaidClass.new()
-local CharacterMaid = MaidClass.new()
-
-local AbilityEvent = ReplicatedStorage.Remotes.requestAbility
-local QuestEvent = ReplicatedStorage.Remotes.quest
-
-local QuestModule = require(ReplicatedStorage.Modules.Shared.Database.Quests)
-local FakePart = Instance.new("Part")
-local LastAttack = 0
-local foundAnything = ""
+local TargetMob = nil
 
 --//Functions
-local function Teleport() --credits to charwar
-    local PlaceID = game.PlaceId
-    local AllIDs = {}
-    local actualHour = os.date("!*t").hour
-    local Deleted = false
-    local File = pcall(function()
-        AllIDs = game:GetService('HttpService'):JSONDecode(readfile("NotSameServers.json"))
-    end)
-    if not File then
-        table.insert(AllIDs, actualHour)
-        writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
-    end
-    local Site;
-    if foundAnything == "" then
-        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
-    else
-        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
-    end
-    local ID = ""
-    if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-        foundAnything = Site.nextPageCursor
-    end
-    local num = 0;
-    for i,v in pairs(Site.data) do
-        local Possible = true
-        ID = tostring(v.id)
-        if tonumber(v.maxPlayers) > tonumber(v.playing) then
-            for _,Existing in pairs(AllIDs) do
-                if num ~= 0 then
-                    if ID == tostring(Existing) then
-                        Possible = false
-                    end
-                else
-                    if tonumber(actualHour) ~= tonumber(Existing) then
-                        local delFile = pcall(function()
-                            delfile("NotSameServers.json")
-                            AllIDs = {}
-                            table.insert(AllIDs, actualHour)
-                        end)
-                    end
-                end
-                num = num + 1
-            end
-            if Possible == true then
-                table.insert(AllIDs, ID)
-                wait()
-                pcall(function()
-                    writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
-                    wait()
-                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                end)
-                wait(4)
-            end
-        end
-    end
-end
-
-local function TweenTeleport(Position)
-    local HumanoidRootPart = Client.Character:FindFirstChild("HumanoidRootPart")
-    if not HumanoidRootPart or not Position then return end
-    
-    local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
-    local Tween = TweenService:Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position.X, Position.Y + 5, Position.Z)})
-    
-    Tween:Play()
-    Tween.Completed:Wait()
-end
-
-local function Attack(Position)
-    if os.clock() - LastAttack < 0.2 then return end --need to do this shit since their combat is laggy as hell
-    LastAttack = os.clock()
-    AbilityEvent:FireServer("Fighting Style", "MouseButton1", CFrame.new(Position), FakePart, 5)
-    AbilityEvent:FireServer("Sword Style", "MouseButton1", CFrame.new(Position), FakePart, 5)
-end
-
-local function GetQuest()
-    local MobName = Library.flags.TargetMob
-    local Folder = QuestFolder:FindFirstChildWhichIsA("Folder")
-
-    if Folder then 
-        if Folder.Target.Value == MobName then
-            return 
-        end
-        QuestEvent:FireServer("Abandon", {Id = "1"})
-    end
-    
-    for Dummy, Data in pairs(QuestModule) do
-        if type(Data) ~= "table" then continue end
-        for I, Data2 in pairs(Data) do
-            if Data2.Target ~= MobName then continue end
-            Client.Character.HumanoidRootPart.CFrame = Dummy.CFrame
-            QuestEvent:FireServer("Accept", {Index = I, Model = Dummy})
-            break
-        end 
-    end
-end
-
 local function IsAlive(Character)
     if not Character or not Character.Parent then return end
     local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
 
     if not Humanoid or not Character:FindFirstChild("HumanoidRootPart") then return end
-    if Humanoid.Health <= 0 then return end
-
+    if Humanoid:GetState() == Enum.HumanoidStateType.Dead then return end
+    
     return true
 end
 
-local function OnMobAdded(Mob)
-    local Index = table.find(MobList, Mob)
-    if Index then return end
-
-    if Players:GetPlayerFromCharacter(Mob) then return end
-    if not IsAlive(Mob) then return end
+local function ValidateMob(Mob)
+    if Mob.Name ~= Library.flags.Target and Library.flags.Target ~= "Farm all(Good if new)" then
+        return
+    end
     
-    MobList[#MobList + 1] = Mob
-
-    MainMaid:GiveTask(Mob.AncestryChanged:Connect(function(_, Parent)
-        if not Parent or not Mob:IsDescendantOf(Entities) then 
-            table.remove(MobList, Index)
-        end 
-    end))
+    return true
 end
 
-local function OnChestAdded(Chest)
-    if not Library.flags.ChestFarm then return end
-    if Library.flags.MobFarm then return end
+local function SetTargetMob()
+    for _, Mob in ipairs(LiveFolder:GetChildren()) do 
+        if Players:GetPlayerFromCharacter(Mob) then continue end
+        if not ValidateMob(Mob) then continue end
 
-    local ClickDetectorPart = Chest:FindFirstChild("ClickDetectorPart")
-    if not ClickDetectorPart then return end
-
-    local ClickDetector = ClickDetectorPart:FindFirstChildWhichIsA("ClickDetector")
-    if not ClickDetector then return end
-
-    repeat task.wait() 
-        Client.Character.HumanoidRootPart.CFrame = ClickDetectorPart.CFrame
-        fireclickdetector(ClickDetector)
-    until not ClickDetector:IsDescendantOf(workspace) or not IsAlive(Client.Character) or not Library.flags.ChestFarm or Library.flags.MobFarm
-end
-
-local function GetMob()
-    for Index = 1, #MobList do 
-        local Mob = MobList[Index]
-        if not Library.flags.MobFarm then break end
-        if string.lower(Mob.Name) ~= string.lower(Library.flags.TargetMob) then continue end
         if not IsAlive(Mob) then continue end
-
-        return Mob
-    end 
-end
-
-local function GrabFruit(Object, Bool)
-    if not Library.flags.FruitFarm then return end
-    if not Bool then task.wait(1) end
-
-    if not Object:IsA("Tool") then return end
-    if Object:IsDescendantOf(workspace.Entities) then return end
-    
-    local BasePart = Object:FindFirstChildWhichIsA("BasePart")
-    if not BasePart then return end
-    
-    local Character = Client.Character or Client.CharacterAdded:Wait()
-    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-    
-    local Touch = BasePart:FindFirstChildWhichIsA("TouchTransmitter", true)
-    
-    repeat task.wait()
-        pcall(function()
-            HumanoidRootPart.CFrame = BasePart.CFrame
-            firetouchinterest(HumanoidRootPart, Touch.Parent, 0)
-            firetouchinterest(HumanoidRootPart, Touch.Parent, 1)
-        end)
-    until not Object:IsDescendantOf(workspace)
-end
-
-local function HideName()
-    if not Library.flags.Namehide then return end
-    local NameTag = Client.Character:WaitForChild("HumanoidRootPart"):WaitForChild("OverheadUI", 3)
-    if not NameTag then return end
-    NameTag:Destroy()
-end
-
-local function OnCharacterAdded(Character)
-    CharacterMaid:DoCleaning()
-
-    local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
-    local Humanoid = Character:WaitForChild("Humanoid")
-    local CurrentMob = nil
-
-    CharacterMaid:GiveTask(RunService.Heartbeat:Connect(function()
-        if not Library.flags.MobFarm then return end
-        if not IsAlive(Character) then return end
-        if not IsAlive(CurrentMob) or CurrentMob.Name ~= Library.flags.TargetMob then
-            CurrentMob = GetMob()
-            return
-        end
+        if Library.flags.Target == "Farm all(Good if new)" and Mob:FindFirstChildWhichIsA("Humanoid").Health > 5000 then continue end
         
-        if Library.flags.AutoQuest then
-            GetQuest()
-            if not QuestFolder:FindFirstChildWhichIsA("Folder") then return end
-        end
-
-        local Rotation = 90
-        if Library.flags.FarmDistance > 0 then 
-            Rotation = -90
-        end
-
-        HumanoidRootPart.CFrame = CurrentMob.HumanoidRootPart.CFrame * CFrame.new(0,Library.flags.FarmDistance,0) * CFrame.Angles(math.rad(Rotation),0,0)
-        Attack(CurrentMob.HumanoidRootPart.Position)
-    end))
-
-    CharacterMaid:GiveTask(IslandFolder.DescendantAdded:Connect(function(Chest)
-        task.wait(0.05)
-        OnChestAdded(Chest)
-    end))
-
-    task.spawn(function()
-        for _, Chest in ipairs(IslandFolder:GetDescendants()) do
-            OnChestAdded(Chest)
-        end
-        for _, Child in ipairs(workspace:GetDescendants()) do 
-            GrabFruit(Child, true)
-        end
-    end)
-
-    HideName()
+        TargetMob = Mob
+        break
+    end
 end
 
 --//Init
-if getgenv().UnloadScript then
-    pcall(getgenv().UnloadScript)
-end
-
-getgenv().UnloadScript = function()
-    MainMaid:Destroy()
-    CharacterMaid:Destroy()
-    MainMaid = nil
-    CharacterMaid = nil
-
-    if Library.open then
-        Library:Close()
+RunService.Heartbeat:Connect(function()
+    if not Library.flags.MobFarm then return end
+    
+    local Character = Client.Character
+    if not Character then return end
+    
+    if not IsAlive(Character) then return end
+    if not IsAlive(TargetMob) or not ValidateMob(TargetMob) then
+        return SetTargetMob()
     end
     
-    ESPLibrary:Toggle(false)
-    Library.base:ClearAllChildren()
-    Library.base:Destroy()
-end 
-
-MainMaid:GiveTask(Client.CharacterAdded:Connect(OnCharacterAdded))
-
-if Client.Character then
-    task.spawn(OnCharacterAdded, Client.Character)
-end 
-
-MainMaid:GiveTask(Entities.ChildAdded:Connect(function(Mob)
-    Mob:WaitForChild("Humanoid", 5)
-    OnMobAdded(Mob)
-end))
-
-MainMaid:GiveTask(workspace.DescendantAdded:Connect(GrabFruit))
-
-for _, Mob in ipairs(Entities:GetChildren()) do 
-    task.spawn(OnMobAdded, Mob)
-end
-
-for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
-    Connection:Disable()
-end
-
---//Library
-for _, NPC in ipairs(InteractableFolder:GetChildren()) do 
-    if not NPC:FindFirstChild("HumanoidRootPart") then continue end
-    NPCList[#NPCList + 1] = NPC.Name 
-end 
-
-for _, Object in ipairs(ReplicatedStorage:GetChildren()) do
-    if table.find(MobNames, Object.Name) then continue end
-    if not Object:FindFirstChild("Data") then continue end
-    MobNames[#MobNames + 1] = Object.Name 
-end
-
-for _, Object in ipairs(Entities:GetChildren()) do
-    if table.find(MobNames, Object.Name) then continue end
-    if not Object:FindFirstChild("Data") then continue end
-    MobNames[#MobNames + 1] = Object.Name
-end
-
-table.sort(MobNames, function(A, B)
-    return A < B
+    local VulnObject = Character.Occupied:FindFirstChild("Invulnerable")
+    if VulnObject then VulnObject:Destroy() end --god mode
+    
+    local MobHumanoidRootPart = TargetMob.HumanoidRootPart
+    Client.Character.HumanoidRootPart.CFrame = MobHumanoidRootPart.CFrame
+    
+    AttackEvent:FireServer({
+        Victim = TargetMob,
+        Type = "Light",
+        LocalInfo = {Flying = false},
+        CurrentHeavy = 1,
+        CurrentLight = 1,
+        CurrentLightCombo = 1,
+        VictimPosition = MobHumanoidRootPart.Position,
+        AnimSet = "Android17"
+    })
 end)
 
---Misc folder 
-MiscFolder:AddButton({text = "Server Hop", callback = function()
-    while task.wait() do 
-        pcall(function()
-            Teleport()
-            if foundAnything ~= "" then
-                Teleport()
-            end
-        end)
-    end 
-end})
+--//UI
+local MobNames = {}
+MobNames[1] = "Farm all(Good if new)"
 
---ESP folder
-ESPFolder:AddToggle({text = "Player ESP", callback = function()
-    ESPLibrary:Toggle(not ESPLibrary.Enabled)
-end})
+for _, Mob in ipairs(LiveFolder:GetChildren()) do
+    if Players:GetPlayerFromCharacter(Mob) then continue end
+    if table.find(MobNames, Mob.Name) then continue end
+    MobNames[#MobNames + 1] = Mob.Name
+end 
 
---Settings folder
-SettingsFolder:AddSlider({text = "Farm Distance", flag = "FarmDistance", min = -10, max = 8})
-SettingsFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 1000, max = 10000})
-
---Main folder
-MainFolder:AddList({text = "Target Mob", flag = "TargetMob", values = MobNames})
-MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
+MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobNames})
 MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
 
-MainFolder:AddToggle({text = "Fruit Farm", flag = "FruitFarm", callback = function()
-    for _, Child in ipairs(workspace:GetDescendants()) do 
-        GrabFruit(Child, true)
-    end
-end})
-
-MainFolder:AddToggle({text = "Chest Farm", flag = "ChestFarm", callback = function()
-    for _, Chest in ipairs(IslandFolder:GetDescendants()) do
-        OnChestAdded(Chest)
-    end
-end})
-
-MainFolder:AddToggle({text = "Hide name", flag = "Namehide", callback = function()
-    HideName()
-end})
-
---Teleport folder
-TeleportFolder:AddList({text = "Islands", values = IslandFolder:GetChildren(), callback = function(IslandName)
-    local Part = IslandFolder[IslandName]:FindFirstChildWhichIsA("SpawnLocation", true) or IslandFolder[IslandName]:FindFirstChildWhichIsA("BasePart", true)
-    pcall(TweenTeleport, Part.Position)
-end})
-
-TeleportFolder:AddList({text = "NPCs", values = NPCList, callback = function(NPCName)
-    pcall(TweenTeleport, InteractableFolder[NPCName].HumanoidRootPart.Position)
-end})
-
---Credits folder
+Window:AddLabel({text = "Report bugs: Kaiden#2444"})
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
-CreditsFolder:AddLabel({text = "ESP Library: Kiriot"})
 
-Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 Library:Init()
 
-warn("Loaded!")
+warn("Loaded script successfully")
