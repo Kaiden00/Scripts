@@ -94,7 +94,7 @@ end))
 Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer"})
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 
-CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "Script: Kaiden#2444"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddButton({text = "Instant Solo", callback = function()
