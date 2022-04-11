@@ -6,7 +6,7 @@ local RunService = game:GetService("RunService")
 local InputManager = game:GetService("VirtualInputManager")
 local InputService = game:GetService("UserInputService")
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+local Library = loadstring(game:HttpGet("https://pastebin.com/raw/edJT9EGX"))() --credits to Jan
 
 local Client = game:GetService("Players").LocalPlayer
 local PlayerGui = Client:WaitForChild("PlayerGui")
@@ -22,6 +22,11 @@ local KeysTable = {
 }
 
 local Marked = {}
+
+local Window = Library:CreateWindow("Friday Night Bloxxin'") 
+local Folder = Window:AddFolder("Autoplayer") 
+
+local CreditsFolder = Window:AddFolder("Credits")
 
 RunService.Heartbeat:Connect(function()
     if not Library.flags.AutoPlayer then return end
@@ -73,25 +78,6 @@ for _, ScreenGui in ipairs(PlayerGui:GetChildren()) do
     getgenv().Menu = ScreenGui
 end
 
-do
-    local Window = Library:CreateWindow("Friday Night Bloxxin'") do
-        local Folder = Window:AddFolder("Autoplayer") do
-            local Toggle = Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer" })
-        end
-
-        Folder:AddLabel({text = "Bug fixes!"})
-        Folder:AddLabel({text = "Multi-key support!"})
-
-        Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end })
-        Window:AddButton({text = "Instant Solo", callback = function()
-            pcall(function()
-                PlayerGui.SingleplayerUI.ButtonPressed:FireServer()
-            end)
-        end})
-    end
-    Library:Init()
-end
-
 local Old; Old = hookmetamethod(game, "__newindex", newcclosure(function(self, ...)
     local Args = {...}
     local Property = Args[1]
@@ -104,5 +90,19 @@ local Old; Old = hookmetamethod(game, "__newindex", newcclosure(function(self, .
     
     return Old(self, ...)
 end))
+
+Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer"})
+Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
+
+CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
+
+Window:AddButton({text = "Instant Solo", callback = function()
+    pcall(function()
+        PlayerGui.SingleplayerUI.ButtonPressed:FireServer()
+    end)
+end})
+
+Library:Init()
 
 warn("Loaded script!")
