@@ -34,3 +34,11 @@ end)
 syn.queue_on_teleport([[
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/Teleporter%20Simulator"))()
 ]])
+
+task.wait(2)
+local Character = Client.Character or Client.CharacterAdded:Wait()
+
+for _, Object in ipairs(Character:GetDescendants()) do 
+    if not Object:IsA("ParticleEmitter") then continue end
+    Object:Destroy()
+end 
