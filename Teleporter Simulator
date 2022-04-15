@@ -1,0 +1,30 @@
+
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Client = Players.LocalPlayer
+local ItemObject = Client:WaitForChild("leaderstats"):WaitForChild("Item")
+
+local SphereFolders = workspace.TimeSpheres:GetChildren()
+local TrainingItems = workspace.TrainingItems
+
+RunService.Heartbeat:Connect(function()
+    local HumanoidRootPart = Client.Character.HumanoidRootPart
+    if not HumanoidRootPart then return end
+    
+    ReplicatedStorage.RemoteEvent:FireServer({"Train"})
+    fireclickdetector(TrainingItems[ItemObject.Value + 1]:FindFirstChildWhichIsA("ClickDetector"))
+
+    for _, Folder in ipairs(SphereFolders) do
+        for _, SphereModel in ipairs(Folder:GetChildren()) do 
+            firetouchinterest(HumanoidRootPart, SphereModel.PrimaryPart, 0)
+            firetouchinterest(HumanoidRootPart, SphereModel.PrimaryPart, 1)
+        end
+    end
+end)
+
+game:GetService("GuiService").ErrorMessageChanged:Connect(function() --rejoin if kicked
+    game:GetService("TeleportService"):Teleport(game.PlaceId)
+end)
