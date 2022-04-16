@@ -80,6 +80,11 @@ for _, Tool in ipairs(ItemFolder:GetChildren()) do
     GetItem(Tool)
 end
 
+syn.queue_on_teleport([[
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/Stand%20Upright%3A%20Rebooted"))()
+]])
+
+
 while task.wait() do
     pcall(function()
         Teleport()
