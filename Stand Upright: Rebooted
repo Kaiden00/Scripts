@@ -7,7 +7,7 @@ end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+local Library = loadstring(game:HttpGet("https://pastebin.com/raw/edJT9EGX"))()
 
 --//Variables
 local Client = Players.LocalPlayer
@@ -90,14 +90,20 @@ local function GetItem(Tool)
     if not Library.flags.Itemfarm then return end
     if not Tool:IsA("Tool") then return end
 
-    repeat
-        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 25, 0)
-        task.wait(1)
-        Character.Humanoid:EquipTool(Tool)
-    until Tool.Parent ~= ItemFolder
+    Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 15, 0)
+    task.wait(1)
+    Character.Humanoid:EquipTool(Tool)
 end
 
 local function SetTargetMob()
+    if Library.flags.LairFarm then 
+        local Boss = LivingFolder:FindFirstChild("Boss")
+        if not Boss then return end
+
+        TargetMob = Boss
+        return 
+    end
+
     for _, Mob in ipairs(LivingFolder:GetChildren()) do 
         if Players:GetPlayerFromCharacter(Mob) then continue end
         if not IsAlive(Mob) then continue end
@@ -112,13 +118,23 @@ local function HideName()
     Character:WaitForChild("Head"):WaitForChild("HealthGui"):Destroy()
 end
 
+local function GetLair()
+    if not Library.flags.LairFarm then return end
+
+    for _, NPC in ipairs(NPCFolder:GetChildren()) do
+        if string.lower(NPC.Name):find(Library.flags.LairTarget.." lair") then
+            NPC.Done:FireServer()
+        end
+    end
+end
+
 --//Init
 RunService.Heartbeat:Connect(function()
     if not Library.flags.MobFarm then return end
     if not Character then return end
 
     if not IsAlive(Character) then return end
-    if not IsAlive(TargetMob) or TargetMob.Name ~= Library.flags.Target then
+    if not IsAlive(TargetMob) or TargetMob.Name ~= Library.flags.Target and TargetMob.Name ~= "Boss" then
         return SetTargetMob()
     end
     if Library.flags.AutoQuest then
@@ -132,10 +148,10 @@ end)
 Client.CharacterAdded:Connect(function(NewCharacter)
     Character = NewCharacter
     HideName()
+    GetLair()
     for _, Tool in ipairs(ItemFolder:GetChildren()) do
         GetItem(Tool)
     end
-    
     NewCharacter:WaitForChild("MoveCD"):Destroy()
 end)
 
@@ -160,11 +176,18 @@ for MobName, _ in pairs(QuestList) do
 end 
 
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
+MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
+
 MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
+MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = function() --get lair quest
+    GetLair()
+end})
+
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
-MainFolder:AddToggle({text = "Name hide", flag = "NameHide", callback = function()
+MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = function()
     HideName()
 end})
+
 MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function()
     for _, Tool in ipairs(ItemFolder:GetChildren()) do
         GetItem(Tool)
@@ -172,8 +195,6 @@ MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function
 end})
 
 MainFolder:AddToggle({text = "Stand Attack(OP)", flag = "StandAttack"})
-
-
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
