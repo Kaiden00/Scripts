@@ -185,11 +185,13 @@ for MobName, _ in pairs(QuestList) do
 end 
 
 local StandList = {}
-local Blacklist = {"CauldronBlack", "TalkingBen"}
+local Blacklist = {"CauldronBlack", "TalkingBen", "GER"}
+local Whitelist = {""} --rare stands that shouldn't be skipped on.
 
 for _, StandObject in ipairs(game:GetService("ReplicatedStorage").StandNameConvert:GetChildren()) do 
     if table.find(StandList, StandObject.Name) then continue end
     if table.find(Blacklist, StandObject.Name) then continue end
+    if string.lower(StandObject.Name):find("oh") then continue end
 
     StandList[#StandList + 1] = StandObject.Name
 end 
@@ -199,17 +201,10 @@ MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
 MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
 MainFolder:AddList({text = "Arrow Selector", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
-
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
-
-MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = function() --get lair quest
-    GetLair()
-end})
-
+MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = GetLair}) --get lair quest
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
-MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = function()
-    HideName()
-end})
+MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = HideName})
 
 MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function()
     for _, Tool in ipairs(ItemFolder:GetChildren()) do
