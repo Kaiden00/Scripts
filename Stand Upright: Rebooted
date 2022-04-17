@@ -1,5 +1,4 @@
 
-error("Script patched for now")
 if not game:IsLoaded() then 
     game.Loaded:Wait()
 end
@@ -60,7 +59,7 @@ end
 
 local function GetQuest()
     local NPC = QuestList[Library.flags.Target]
-    if not NPC then return warn("Couldn't find NPC") end
+    if not NPC then return end
 
     for _, Folder in ipairs(QuestFolder:GetChildren()) do 
         local EnemyObject = Folder:FindFirstChild("Enemy")
@@ -249,10 +248,6 @@ MainFolder:AddToggle({text = "Stand Farm", flag = "StandFarm", callback = functi
             until ClientStand.Value == "None" or not Library.flags.StandFarm
         end 
     end 
-
-    if Library.flags.TargetStand == ClientStand.Value then 
-        warn("Got stand!!!!")
-    end 
 end})
 
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
@@ -265,7 +260,6 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
 Window:AddLabel({text = "DM bugs: Kaiden#2444"})
-Window:AddLabel({text = "Fixed some bugs!"})
+Window:AddLabel({text = "Unpatched shit devs!"})
 
 Library:Init()
-warn("Loaded script successfully")
