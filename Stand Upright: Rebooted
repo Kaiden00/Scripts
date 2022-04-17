@@ -198,7 +198,6 @@ MainFolder:AddToggle({text = "Stand Attack(OP)", flag = "StandAttack"})
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
-Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
 
 Library:Init()
 warn("Loaded script successfully")
