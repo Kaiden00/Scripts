@@ -1,4 +1,3 @@
-
 if not game:IsLoaded() then 
     game.Loaded:Wait()
 end
@@ -88,6 +87,7 @@ local function GetQuest()
         end 
     end
 
+    if not NPC:FindFirstChild("Done") then return end
     NPC.Done:FireServer() --get quest
 end
 
