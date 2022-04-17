@@ -32,18 +32,35 @@ local LastAttack = 0
 local MobValues = {}
 local StandList = {}
 local QuestList = {
-    ["Bad Gi"] = NPCFolder["Giorno Giovanna lvl 1 Quest"],
-    ["Giorno Giovanna"] = NPCFolder["Koichi lvl 5 Quest"],
-    ["Scary Monster"] = NPCFolder["Noob lvl 10 Quest"],
-    ["Rker Dummy"] = NPCFolder["allMemester lvl 15+ quest"],
-    ["Dio Over Heaven"] = NPCFolder["Young Joseph Quest lvl 25+"],
-    ["Yoshikage Kira"] = NPCFolder["Okuyasu Quest lvl 30+"],
-    ["Angelo"] = NPCFolder["Josuke Quest lvl 40+"],
-    ["Alien"] = NPCFolder["Rohan Quest lvl 50+"],
-    ["Jotaro Part 4"] = NPCFolder["Dio quest lvl 65+"],
-    ["Kakyoin"] = NPCFolder["Avdol lvl 75+"],
-    ["Jungle Bandit"] = NPCFolder["Boss Giorno Giovanna lvl 90 Quest"],
+    ["Bad Gi"] = "Giorno Giovanna lvl 1 Quest",
+    ["Giorno Giovanna"] = "Koichi lvl 5 Quest",
+    ["Scary Monster"] = "Noob lvl 10 Quest",
+    ["Rker Dummy"] = "allMemester lvl 15+ quest",
+    ["Dio Over Heaven"] = "Young Joseph Quest lvl 25+",
+    ["Yoshikage Kira"] = "Okuyasu Quest lvl 30+",
+    ["Angelo"] = "Josuke Quest lvl 40+",
+    ["Alien"] = "Rohan Quest lvl 50+",
+    ["Jotaro Part 4"] = "Dio quest lvl 65+",
+    ["Kakyoin"] = "Avdol lvl 75+",
+    ["Jungle Bandit"] = "Boss Giorno Giovanna lvl 90 Quest",
 }
+
+for _, QuestNPC in ipairs(NPCFolder:GetChildren()) do --shit fix but u know it works xD
+    if not QuestNPC:FindFirstChild("Head") then continue end
+    local MainUI = QuestNPC.Head:FindFirstChild("Main")
+    if not MainUI then continue end
+    local TextBox = MainUI:FindFirstChildWhichIsA("TextBox")
+    if not TextBox then continue end
+
+    for MobName, NPCName in pairs(QuestList) do
+        if TextBox.Text == NPCName then
+            QuestList[MobName] = QuestNPC
+            warn("hey")
+        end 
+    end 
+end 
+
+
 local StandBlacklist = {"CauldronBlack", "TalkingBen", "GER"}
 
 --//Functions
