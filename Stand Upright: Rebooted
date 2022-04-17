@@ -55,7 +55,6 @@ for _, QuestNPC in ipairs(NPCFolder:GetChildren()) do --shit fix but u know it w
     for MobName, NPCName in pairs(QuestList) do
         if TextBox.Text == NPCName then
             QuestList[MobName] = QuestNPC
-            warn("hey")
         end 
     end 
 end 
