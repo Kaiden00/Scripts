@@ -208,7 +208,7 @@ end
 for _, StandObject in ipairs(game:GetService("ReplicatedStorage").StandNameConvert:GetChildren()) do 
     if table.find(StandList, StandObject.Name) then continue end
     if table.find(StandBlacklist, StandObject.Name) then continue end
-    if string.lower(StandObject.Name):find("oh") then continue end
+    if string.lower(StandObject.Name):find("oh") or string.lower(StandObject.Name):find("overheaven")  then continue end
 
     StandList[#StandList + 1] = StandObject.Name
 end
