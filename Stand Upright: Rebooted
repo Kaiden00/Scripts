@@ -190,7 +190,7 @@ workspace.ChildAdded:Connect(GetItem)
 local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local Method = getnamecallmethod()
 
-    if Method == "Destroy" and self:IsDescendantOf(Character) or Method == "Kick" or self.Name == "PlayerStandMainHandler" or self.Name == "SpeedJump" then
+    if Method == "Destroy" and self:IsDescendantOf(Character) or Method == "Kick" or self.Name == "PlayerStandMainHandler" then
         return wait(9e9)
     end 
     
