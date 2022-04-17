@@ -1,95 +1,164 @@
-if not game:IsLoaded() then
+
+if not game:IsLoaded() then 
     game.Loaded:Wait()
 end
 
-local Client = game:GetService("Players").LocalPlayer
+--//Dependencies
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
+
+--//Variables
+local Client = Players.LocalPlayer
+local Character = Client.Character
+
+local DataFolder = Client:WaitForChild("Data")
+local QuestFolder = DataFolder:WaitForChild("Quests")
+
+local Window = Library:CreateWindow("SU:Rebooted")
+local MainFolder = Window:AddFolder("Main")
+local CreditsFolder = Window:AddFolder("Credits")
+
 local ItemFolder = workspace.Items
+local NPCFolder = workspace.Npcs
+local LivingFolder = workspace.Living
 
-local foundAnything = ""
+local TargetMob = nil
+local MobValues = {}
+local QuestList = {
+    ["Bad Gi"] = NPCFolder["Giorno Giovanna lvl 1 Quest"],
+    ["Giorno Giovanna"] = NPCFolder["Koichi lvl 5 Quest"],
+    ["Scary Monster"] = NPCFolder["Noob lvl 10 Quest"],
+    ["Rker Dummy"] = NPCFolder["allMemester lvl 15+ quest"],
+    ["Dio Over Heaven"] = NPCFolder["Young Joseph Quest lvl 25+"],
+    ["Yoshikage Kira"] = NPCFolder["Okuyasu Quest lvl 30+"],
+    ["Angelo"] = NPCFolder["Josuke Quest lvl 40+"],
+    ["Alien"] = NPCFolder["Rohan Quest lvl 50+"],
+    ["Jotaro Part 4"] = NPCFolder["Dio quest lvl 65+"],
+    ["Kakyoin"] = NPCFolder["Avdol lvl 75+"],
+    ["Jungle Bandit"] = NPCFolder["Boss Giorno Giovanna lvl 90 Quest"],
+}
 
-if not Client.Character then 
-    Client.CharacterAdded:Wait()
-    Client.Character:WaitForChild("Humanoid")
+--//Functions
+local function IsAlive(Model)
+    if not Model or not Model.Parent then return end
+    local Humanoid = Model:FindFirstChildWhichIsA("Humanoid")
+
+    if not Humanoid or not Model:FindFirstChild("HumanoidRootPart") then return end
+    if Humanoid:GetState() == Enum.HumanoidStateType.Dead then return end
+    
+    return true
 end
 
-local function Teleport() --credits to charwar
-    local PlaceID = game.PlaceId
-    local AllIDs = {}
-    local actualHour = os.date("!*t").hour
-    local Deleted = false
-    local File = pcall(function()
-        AllIDs = game:GetService('HttpService'):JSONDecode(readfile("NotSameServers.json"))
-    end)
-    if not File then
-        table.insert(AllIDs, actualHour)
-        writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
-    end
-    local Site;
-    if foundAnything == "" then
-        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
-    else
-        Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
-    end
-    local ID = ""
-    if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-        foundAnything = Site.nextPageCursor
-    end
-    local num = 0;
-    for i,v in pairs(Site.data) do
-        local Possible = true
-        ID = tostring(v.id)
-        if tonumber(v.maxPlayers) > tonumber(v.playing) then
-            for _,Existing in pairs(AllIDs) do
-                if num ~= 0 then
-                    if ID == tostring(Existing) then
-                        Possible = false
-                    end
-                else
-                    if tonumber(actualHour) ~= tonumber(Existing) then
-                        local delFile = pcall(function()
-                            delfile("NotSameServers.json")
-                            AllIDs = {}
-                            table.insert(AllIDs, actualHour)
-                        end)
-                    end
-                end
-                num = num + 1
+local function GetQuest()
+    local NPC = QuestList[Library.flags.Target]
+    if not NPC then return warn("Couldn't find NPC") end
+
+    for _, Folder in ipairs(QuestFolder:GetChildren()) do 
+        local EnemyObject = Folder:FindFirstChild("Enemy")
+
+        if EnemyObject and EnemyObject.Value == Library.flags.Target then
+            if Folder.Completed.Value then
+                NPC.QuestDone:FireServer()
             end
-            if Possible == true then
-                table.insert(AllIDs, ID)
-                wait()
-                pcall(function()
-                    writefile("NotSameServers.json", game:GetService('HttpService'):JSONEncode(AllIDs))
-                    wait()
-                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                end)
-                wait(4)
-            end
-        end
+            return
+        end 
     end
+
+    NPC.Done:FireServer() --get quest
+end
+
+local function Attack()
+    local EventFolder = Character:FindFirstChild("StandEvents")
+    if not EventFolder then return end
+    
+    EventFolder.M1:FireServer()
 end
 
 local function GetItem(Tool)
+    if not Library.flags.Itemfarm then return end
     if not Tool:IsA("Tool") then return end
-    Client.Character.Humanoid:EquipTool(Tool)
+
+    Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 25, 0)
+    task.wait(1)
+    Character.Humanoid:EquipTool(Tool)
 end
+
+local function SetTargetMob()
+    for _, Mob in ipairs(LivingFolder:GetChildren()) do 
+        if Players:GetPlayerFromCharacter(Mob) then continue end
+        if not IsAlive(Mob) then continue end
+        if Mob.Name ~= Library.flags.Target then continue end
+        TargetMob = Mob
+        break
+    end
+end
+
+local function HideName()
+    if not Library.flags.NameHide then return end
+    Character:WaitForChild("Head"):WaitForChild("HealthGui"):Destroy()
+end
+
+--//Init
+RunService.Heartbeat:Connect(function()
+    if not Library.flags.MobFarm then return end
+    if not Character then return end
+
+    if not IsAlive(Character) then return end
+    if not IsAlive(TargetMob) or TargetMob.Name ~= Library.flags.Target then
+        return SetTargetMob()
+    end
+    if Library.flags.AutoQuest then
+        GetQuest()
+    end
+
+    Character.HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0, -7, 0) * CFrame.Angles(math.rad(90),0,0)
+    Attack()
+end)
+
+Client.CharacterAdded:Connect(function(NewCharacter)
+    Character = NewCharacter
+    HideName()
+end)
 
 ItemFolder.ChildAdded:Connect(GetItem)
 
-for _, Tool in ipairs(ItemFolder:GetChildren()) do
-    GetItem(Tool)
+local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)    
+    if tostring(self) == "PlayerStandMainHandler" or getnamecallmethod() == "Kick" and not checkcaller() then
+        return wait(9e9)
+    end 
+    
+    return Old(self, ...)
+end))
+
+for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
+    Connection:Disable()
 end
 
-syn.queue_on_teleport([[
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kaiden00/Scripts/main/Stand%20Upright%3A%20Rebooted"))()
-]])
+--//UI
+for MobName, _ in pairs(QuestList) do
+    if table.find(MobValues, MobName) then continue end
+    MobValues[#MobValues + 1] = MobName
+end 
+
+MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
+MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
+MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
+MainFolder:AddToggle({text = "Name hide", flag = "NameHide", callback = function()
+    HideName()
+end})
+MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function()
+    for _, Tool in ipairs(ItemFolder:GetChildren()) do
+        GetItem(Tool)
+    end
+end})
 
 
-while task.wait() do
-    pcall(function()
-        Teleport()
-        if foundAnything ~= "" then
-            Teleport()
-        end
-    end)
-end
+CreditsFolder:AddLabel({text = "Script: Kaiden"})
+CreditsFolder:AddLabel({text = "UI Library: Jan"})
+Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
+
+Library:Init()
+
+warn("Loaded script successfully")
