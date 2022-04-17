@@ -80,9 +80,11 @@ local function GetItem(Tool)
     if not Library.flags.Itemfarm then return end
     if not Tool:IsA("Tool") then return end
 
-    Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 25, 0)
-    task.wait(1)
-    Character.Humanoid:EquipTool(Tool)
+    repeat
+        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 25, 0)
+        task.wait(1)
+        Character.Humanoid:EquipTool(Tool)
+    until Tool.Parent ~= ItemFolder
 end
 
 local function SetTargetMob()
@@ -120,6 +122,9 @@ end)
 Client.CharacterAdded:Connect(function(NewCharacter)
     Character = NewCharacter
     HideName()
+    for _, Tool in ipairs(ItemFolder:GetChildren()) do
+        GetItem(Tool)
+    end
 end)
 
 ItemFolder.ChildAdded:Connect(GetItem)
