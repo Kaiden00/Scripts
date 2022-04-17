@@ -249,8 +249,8 @@ MainFolder:AddToggle({text = "Stand Farm", flag = "StandFarm", callback = functi
 end})
 
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
-MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = HideName})
 MainFolder:AddToggle({text = "Auto Stand Skills", flag = "StandAttack"})
+MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = HideName})
 
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
@@ -258,7 +258,6 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
 Window:AddLabel({text = "DM bugs: Kaiden#2444"})
-Window:AddLabel({text = "Turn on "})
 
 Library:Init()
 warn("Loaded script successfully")
