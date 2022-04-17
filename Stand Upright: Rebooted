@@ -289,6 +289,8 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
 Window:AddLabel({text = "DM bugs: Kaiden#2444"})
-Window:AddLabel({text = "UNPATCHED AGAIN BRUHHHHHHHHHHHHHHHH V2!"})
+Window:AddLabel({text = "UNPATCHED L + RATIO"})
+Window:AddLabel({text = "DEVS = INCOMPETENT"})
 
 Library:Init()
+warn("Loaded script successfully") --lols nice try
