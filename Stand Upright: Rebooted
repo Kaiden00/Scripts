@@ -169,8 +169,19 @@ end
 local function GetLair()
     if not Library.flags.LairFarm then return end
 
-    for _, NPC in ipairs(NPCFolder:GetChildren()) do
-        if string.lower(NPC.Name):find(Library.flags.LairTarget.." lair") then
+    for _, NPC in ipairs(NPCFolder:GetChildren()) do --eeeeeeeeee
+        if not NPC:FindFirstChild("Head") then continue end
+
+        local SubUI = NPC.Head:FindFirstChild("Sub")
+        if not SubUI or not SubUI:FindFirstChildWhichIsA("TextBox") or SubUI:FindFirstChildWhichIsA("TextBox").Text ~= "Lair Quest" then continue end
+
+        local MainUI = NPC.Head:FindFirstChild("Main")
+        if not MainUI then continue end
+
+        local TextBox = MainUI:FindFirstChildWhichIsA("TextBox")
+        if not TextBox then continue end
+        
+        if string.lower(TextBox.Text):find(string.lower(Library.flags.LairTarget.."+")) then
             NPC.Done:FireServer()
         end
     end
@@ -206,7 +217,7 @@ workspace.ChildAdded:Connect(GetItem)
 local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local Method = getnamecallmethod()
 
-    if Method == "Destroy" and self:IsDescendantOf(Character) or Method == "Kick" or self.Name == "PlayerStandMainHandler" then
+    if Method == "Raycast" or Method == "Kick" or Method == "FireServer" and tostring(self) == "PlayerStandMainHandle" then
         return wait(9e9)
     end 
     
@@ -238,7 +249,7 @@ for _, StandObject in ipairs(game:GetService("ReplicatedStorage").StandNameConve
 end
 
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
-MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
+MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"Lvl. 15", "Lvl. 40", "Lvl. 80", "Lvl. 100"}})
 MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
 MainFolder:AddList({text = "Arrow Selector[Stand Farm]", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
 
@@ -281,4 +292,3 @@ Window:AddLabel({text = "DM bugs: Kaiden#2444"})
 Window:AddLabel({text = "Unpatched shit devs!"})
 
 Library:Init()
-warn("Loaded script successfully") --lols nice try
