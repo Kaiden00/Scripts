@@ -106,10 +106,11 @@ end
 local function GetItem(Tool)
     if not Library.flags.Itemfarm then return end
     if not Tool:IsA("Tool") then return end
+    Tool:WaitForChild("Handle", 5)
 
     repeat
-        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 15, 0)
-        task.wait(0.5)
+        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 20, 0)
+        task.wait(1)
         Character.Humanoid:EquipTool(Tool)
     until not Tool or Tool.Parent ~= ItemFolder or Tool.Parent ~= workspace
 end
@@ -184,6 +185,7 @@ Client.CharacterAdded:Connect(function(NewCharacter)
 end)
 
 ItemFolder.ChildAdded:Connect(GetItem)
+workspace.ChildAdded:Connect(GetItem)
 
 local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)    
     if tostring(self) == "PlayerStandMainHandler" or getnamecallmethod() == "Kick" and not checkcaller() then
@@ -262,6 +264,7 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
 Window:AddLabel({text = "DM bugs: Kaiden#2444"})
+Window:AddLabel({text = "Fixed some bugs!"})
 
 Library:Init()
 warn("Loaded script successfully")
