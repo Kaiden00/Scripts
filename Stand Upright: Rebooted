@@ -135,6 +135,8 @@ Client.CharacterAdded:Connect(function(NewCharacter)
     for _, Tool in ipairs(ItemFolder:GetChildren()) do
         GetItem(Tool)
     end
+    
+    NewCharacter:WaitForChild("MoveCD"):Destroy()
 end)
 
 ItemFolder.ChildAdded:Connect(GetItem)
