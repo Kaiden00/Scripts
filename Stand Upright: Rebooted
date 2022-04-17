@@ -189,14 +189,13 @@ workspace.ChildAdded:Connect(GetItem)
 
 local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
     local Method = getnamecallmethod()
-    
-    if Method == "Kick" or Method == "FireServer" and tostring(self) == "PlayerStandMainHandler" then 
+
+    if Method == "Destroy" and self:IsDescendantOf(Character) or Method == "Kick" or self.Name == "PlayerStandMainHandler" or self.Name == "SpeedJump" then
         return wait(9e9)
     end 
     
     return Old(self, ...)
 end))
-
 
 for _, Connection in pairs(getconnections(Client.Idled)) do --anti afk
     Connection:Disable()
@@ -266,3 +265,4 @@ Window:AddLabel({text = "DM bugs: Kaiden#2444"})
 Window:AddLabel({text = "Unpatched shit devs!"})
 
 Library:Init()
+warn("Loaded script successfully") --lols gg
