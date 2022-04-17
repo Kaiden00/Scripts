@@ -31,17 +31,17 @@ local LastAttack = 0
 local MobValues = {}
 local StandList = {}
 local QuestList = {
-    ["Bad Gi"] = "Giorno Giovanna lvl 1 Quest",
-    ["Giorno Giovanna"] = "Koichi lvl 5 Quest",
-    ["Scary Monster"] = "Noob lvl 10 Quest",
-    ["Rker Dummy"] = "allMemester lvl 15+ quest",
-    ["Dio Over Heaven"] = "Young Joseph Quest lvl 25+",
-    ["Yoshikage Kira"] = "Okuyasu Quest lvl 30+",
-    ["Angelo"] = "Josuke Quest lvl 40+",
-    ["Alien"] = "Rohan Quest lvl 50+",
-    ["Jotaro Part 4"] = "Dio quest lvl 65+",
-    ["Kakyoin"] = "Avdol lvl 75+",
-    ["Jungle Bandit"] = "Boss Giorno Giovanna lvl 90 Quest",
+    ["Bad Gi"] = "1+",
+    ["Giorno Giovanna"] = "5+",
+    ["Scary Monster"] = "10+",
+    ["Rker Dummy"] = "15+",
+    ["Dio Over Heaven"] = "25+",
+    ["Yoshikage Kira"] = "30+",
+    ["Angelo"] = "40+",
+    ["Alien"] = "50+",
+    ["Jotaro Part 4"] = "65+",
+    ["Kakyoin"] = "75+",
+    ["Jungle Bandit"] = "90+",
 }
 
 for _, QuestNPC in ipairs(NPCFolder:GetChildren()) do --shit fix but u know it works xD
@@ -52,7 +52,8 @@ for _, QuestNPC in ipairs(NPCFolder:GetChildren()) do --shit fix but u know it w
     if not TextBox then continue end
 
     for MobName, NPCName in pairs(QuestList) do
-        if TextBox.Text == NPCName then
+        if type(NPCName) == "userdata" then continue end
+        if TextBox.Text:find(NPCName) then
             QuestList[MobName] = QuestNPC
         end 
     end 
@@ -87,7 +88,6 @@ local function GetQuest()
         end 
     end
 
-    if not NPC:FindFirstChild("Done") then return end
     NPC.Done:FireServer() --get quest
 end
 
