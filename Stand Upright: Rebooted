@@ -180,5 +180,5 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
 
 Library:Init()
-
+Character:WaitForChild("MoveCD"):Destroy()
 warn("Loaded script successfully")
