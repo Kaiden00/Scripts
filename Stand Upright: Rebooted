@@ -250,6 +250,7 @@ CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
+Window:AddLabel({text = "DM bugs: Kaiden#2444"})
 
 Library:Init()
 warn("Loaded script successfully")
