@@ -27,6 +27,7 @@ local NPCFolder = workspace.Npcs
 local LivingFolder = workspace.Living
 
 local TargetMob = nil
+local LastAttack = 0 
 
 local MobValues = {}
 local StandList = {}
@@ -80,13 +81,16 @@ local function Attack()
     
     EventFolder.M1:FireServer()
 
-    if Library.flags.StandAttack then
+    if Library.flags.StandAttack then        
         local Stand = Character:FindFirstChild("Stand")
         if not Stand then return end
 
         if not Character.Aura.Value then
             EventFolder.Summon:FireServer()
         end
+
+        if os.clock() - LastAttack < 0.5 then return end --lag prevention
+        LastAttack = os.clock()
 
         for _, Event in ipairs(EventFolder:GetChildren()) do 
             if Event.Name == "Block" then continue end
