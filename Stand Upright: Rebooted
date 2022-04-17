@@ -250,7 +250,7 @@ end})
 
 MainFolder:AddToggle({text = "Auto Quest", flag = "AutoQuest"})
 MainFolder:AddToggle({text = "Name Hide", flag = "NameHide", callback = HideName})
-MainFolder:AddToggle({text = "Stand Attack(OP)", flag = "StandAttack"})
+MainFolder:AddToggle({text = "Auto Stand Skills", flag = "StandAttack"})
 
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
