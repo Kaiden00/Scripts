@@ -79,10 +79,6 @@ local function Attack()
         local Stand = Character:FindFirstChild("Stand")
         if not Stand then return end
 
-        if not Character.Aura.Value then
-            EventFolder.Summon:FireServer()
-        end
-        
         for _, Event in ipairs(EventFolder:GetChildren()) do 
             if Event.Name == "Block" then continue end
             Event:FireServer(true)
