@@ -183,7 +183,6 @@ MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
 
 MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
-MainFolder:AddToggle({text = "Prioritise boss", flag = "Boss"})
 
 MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = function() --get lair quest
     GetLair()
