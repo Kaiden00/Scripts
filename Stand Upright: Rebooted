@@ -83,7 +83,6 @@ local function GetQuest()
         if EnemyObject and EnemyObject.Value == Library.flags.Target then
             if Folder.Completed.Value then
                 NPC.QuestDone:FireServer()
-                warn("Done")
             end
             return
         end 
@@ -289,8 +288,6 @@ CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
-Window:AddLabel({text = "DM bugs: Kaiden#2444"})
-Window:AddLabel({text = "LAST UNPATCH TODAY"})
-Window:AddLabel({text = "DEVS = INCOMPETENT"})
+Window:AddLabel({text = "https://discord.gg/zxaJdjSG"})
 
 Library:Init()
