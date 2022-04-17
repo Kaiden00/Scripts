@@ -265,4 +265,4 @@ Window:AddLabel({text = "DM bugs: Kaiden#2444"})
 Window:AddLabel({text = "Unpatched shit devs!"})
 
 Library:Init()
-warn("Loaded script successfully") --lols gg
+warn("Loaded script successfully") --lols nice try
