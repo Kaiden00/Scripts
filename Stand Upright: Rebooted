@@ -74,6 +74,16 @@ local function Attack()
     if not EventFolder then return end
     
     EventFolder.M1:FireServer()
+
+    if Library.flags.StandAttack then
+        local Stand = Character:FindFirstChild("Stand")
+        if not Stand then return end
+        
+        for _, Event in ipairs(EventFolder:GetChildren()) do 
+            if Event.Name == "Block" then continue end
+            Event:FireServer(true)
+        end 
+    end 
 end
 
 local function GetItem(Tool)
@@ -158,6 +168,9 @@ MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function
         GetItem(Tool)
     end
 end})
+
+MainFolder:AddToggle({text = "Stand Attack(OP)", flag = "StandAttack"})
+
 
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
