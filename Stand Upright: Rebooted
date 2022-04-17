@@ -293,4 +293,3 @@ Window:AddLabel({text = "UNPATCHED L + RATIO"})
 Window:AddLabel({text = "DEVS = INCOMPETENT"})
 
 Library:Init()
-warn("Loaded script successfully") --lols nice try
