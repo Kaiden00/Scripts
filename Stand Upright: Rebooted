@@ -125,8 +125,8 @@ local function GetItem(Tool)
     Tool:WaitForChild("Handle", 5)
 
     repeat
-        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 20, 0)
-        task.wait(1.5)
+        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 10, 0)
+        task.wait(1.9)
         Character.Humanoid:EquipTool(Tool)
     until not Tool or Tool.Parent ~= ItemFolder or Tool.Parent ~= workspace
 end
