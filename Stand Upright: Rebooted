@@ -220,9 +220,7 @@ MainFolder:AddList({text = "Arrow Selector", flag = "Arrow", values = {"Stand Ar
 
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
 MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = GetLair}) --get lair quest
-MainFolder:AddToggle({text = "Item Farm", flag = "Itemfarm", callback = function()
-    RunGetItem()
-end})
+MainFolder:AddToggle({text = "Item Farm", flag = "Itemfarm", callback = RunGetItem})
 MainFolder:AddToggle({text = "Stand Farm", flag = "StandFarm", callback = function()
     while Library.flags.StandFarm and ClientStand.Value ~= Library.flags.TargetStand and task.wait(0.2) do
         local Arrow = Client.Backpack:FindFirstChild(Library.flags.Arrow) or Character:FindFirstChild(Library.flags.Arrow)
