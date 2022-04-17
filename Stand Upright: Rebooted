@@ -16,6 +16,8 @@ local Character = Client.Character
 local DataFolder = Client:WaitForChild("Data")
 local QuestFolder = DataFolder:WaitForChild("Quests")
 
+local ClientStand = DataFolder:WaitForChild("Stand")
+
 local Window = Library:CreateWindow("SU:Rebooted")
 local MainFolder = Window:AddFolder("Main")
 local CreditsFolder = Window:AddFolder("Credits")
@@ -174,8 +176,20 @@ for MobName, _ in pairs(QuestList) do
     MobValues[#MobValues + 1] = MobName
 end 
 
+local StandList = {}
+local Blacklist = {"CauldronBlack", "TalkingBen"}
+
+for _, StandObject in ipairs(game:GetService("ReplicatedStorage").StandNameConvert:GetChildren()) do 
+    if table.find(StandList, StandObject.Name) then continue end
+    if table.find(Blacklist, StandObject.Name) then continue end
+
+    StandList[#StandList + 1] = StandObject.Name
+end 
+
+
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
+MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
 
 MainFolder:AddToggle({text = "Mob Farm", flag = "MobFarm"})
 
@@ -195,9 +209,38 @@ MainFolder:AddToggle({text = "Item farm", flag = "Itemfarm", callback = function
 end})
 
 MainFolder:AddToggle({text = "Stand Attack(OP)", flag = "StandAttack"})
+MainFolder:AddToggle({text = "Stand Farm", flag = "StandFarm", callback = function()
+    while Library.flags.StandFarm and ClientStand.Value ~= Library.flags.TargetStand and task.wait(0.2) do
+        local Arrow = Client.Backpack:FindFirstChild("Stand Arrow") or Character:FindFirstChild("Stand Arrow")
+        local Fruit = Client.Backpack:FindFirstChild("Rokakaka") or Character:FindFirstChild("Rokakaka")
+
+        if not Arrow or not Fruit then continue end
+
+        if ClientStand.Value == "None" then 
+            repeat
+                Arrow.Parent = Character
+                task.wait(0.3)
+                Arrow.Use:FireServer()
+            until ClientStand.Value ~= "None" or not Library.flags.StandFarm
+        else
+            repeat 
+                Fruit.Parent = Character
+                task.wait(0.3)
+                Fruit.Use:FireServer()
+            until ClientStand.Value == "None" or not Library.flags.StandFarm
+        end 
+    end 
+
+    if Library.flags.TargetStand == ClientStand.Value then 
+        warn("Got stand!!!!")
+    end 
+end})
+
 
 CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
+
+Window:AddLabel({text = "StandFarm needs arrow/fruit"})
 
 Library:Init()
 warn("Loaded script successfully")
