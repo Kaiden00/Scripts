@@ -216,7 +216,7 @@ end
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"lvl 15", "lvl 40", "lvl 80", "lvl 100"}})
 MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
-MainFolder:AddList({text = "Arrow Selector", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
+MainFolder:AddList({text = "Arrow Selector[Stand Farm]", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
 
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
 MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = GetLair}) --get lair quest
