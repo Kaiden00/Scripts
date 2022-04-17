@@ -7,7 +7,7 @@ end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-local Library = loadstring(game:HttpGet("https://pastebin.com/raw/edJT9EGX"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))()
 
 --//Variables
 local Client = Players.LocalPlayer
