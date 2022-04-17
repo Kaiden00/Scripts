@@ -83,6 +83,7 @@ local function GetQuest()
         if EnemyObject and EnemyObject.Value == Library.flags.Target then
             if Folder.Completed.Value then
                 NPC.QuestDone:FireServer()
+                warn("Done")
             end
             return
         end 
@@ -113,7 +114,7 @@ local function Attack()
             if Event.Name == "Quote" then continue end
             if Event.Name == "Pose" then continue end
             if Event.Name == "Summon" then continue end
-
+            if Event.Name == "TogglePilot" then continue end
             Event:FireServer(true)
         end 
     end 
