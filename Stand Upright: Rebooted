@@ -152,7 +152,6 @@ Client.CharacterAdded:Connect(function(NewCharacter)
     for _, Tool in ipairs(ItemFolder:GetChildren()) do
         GetItem(Tool)
     end
-    NewCharacter:WaitForChild("MoveCD"):Destroy()
 end)
 
 ItemFolder.ChildAdded:Connect(GetItem)
@@ -202,5 +201,4 @@ CreditsFolder:AddLabel({text = "UI Library: Jan"})
 Window:AddLabel({text = "DM Bugs: Kaiden#2444"})
 
 Library:Init()
-Character:WaitForChild("MoveCD"):Destroy()
 warn("Loaded script successfully")
