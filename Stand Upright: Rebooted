@@ -210,7 +210,7 @@ local function Teleport(Position)
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
     if not HumanoidRootPart then return end
 
-    if Client:DistanceFromCharacter(Position) > 15 then
+    if Client:DistanceFromCharacter(Position) > 10 then
         local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
         TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position)})
         TweenObject:Play()
