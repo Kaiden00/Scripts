@@ -122,11 +122,11 @@ end
 local function GetItem(Tool)
     if not Library.flags.Itemfarm then return end
     if not Tool:IsA("Tool") then return end
-    Tool:WaitForChild("Handle", 5)
+    local Handle = Tool:WaitForChild("Handle", 5)
 
     repeat
-        Character.HumanoidRootPart.CFrame = Tool:FindFirstChildWhichIsA("BasePart").CFrame * CFrame.new(0, 10, 0)
-        task.wait(1.9)
+        Teleport(Handle.Position)
+        task.wait(1.5)
         Character.Humanoid:EquipTool(Tool)
     until not Tool or Tool.Parent ~= ItemFolder or Tool.Parent ~= workspace
 end
@@ -187,6 +187,31 @@ local function GetLair()
     end
 end
 
+local TweenObject = nil
+
+local function Teleport(Position)
+    if TweenObject then 
+        TweenObject:Cancel()
+        TweenObject:Destroy()
+        TweenObject = nil
+    end
+
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+    if not HumanoidRootPart then return end
+    HumanoidRootPart.Anchored = false
+
+    if Client:DistanceFromCharacter(Position) > 10 and TargetMob.Name ~= "Boss" then
+        local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
+        TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position.X, Position.Y + 7, Position.Z)})
+        HumanoidRootPart.Anchored = true
+        TweenObject:Play()
+        HumanoidRootPart.Anchored = false
+    else
+        HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, -10, 0) * CFrame.Angles(math.rad(90),0,0)
+    end 
+
+end
+
 --//Init
 RunService.Heartbeat:Connect(function()
     if not Library.flags.MobFarm then return end
@@ -200,7 +225,7 @@ RunService.Heartbeat:Connect(function()
         GetQuest()
     end
 
-    Character.HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0, -7, 0) * CFrame.Angles(math.rad(90),0,0)
+    Teleport(TargetMob.HumanoidRootPart.Position)
     Attack()
 end)
 
@@ -252,6 +277,7 @@ MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"Lvl. 15", "Lvl. 40", "Lvl. 80", "Lvl. 100"}})
 MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
 MainFolder:AddList({text = "Arrow Selector[Stand Farm]", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
+MainFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 100, max = 150})
 
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
 MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = GetLair}) --get lair quest
@@ -288,6 +314,6 @@ CreditsFolder:AddLabel({text = "Script: Kaiden"})
 CreditsFolder:AddLabel({text = "UI Library: Jan"})
 
 Window:AddLabel({text = "StandFarm needs arrow/fruit"})
-Window:AddLabel({text = "https://discord.gg/zxaJdjSG"})
+Window:AddLabel({text = "UNPATCHED!"})
 
 Library:Init()
