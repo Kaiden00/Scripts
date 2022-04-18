@@ -28,6 +28,7 @@ local LivingFolder = workspace.Living
 local TargetMob = nil
 local LastAttack = 0 
 
+local NoclipParts = {}
 local MobValues = {}
 local StandList = {}
 local QuestList = {
@@ -63,6 +64,16 @@ end
 local StandBlacklist = {"CauldronBlack", "TalkingBen", "GER"}
 
 --//Functions
+local function AddNoclipParts(Character)
+    NoclipParts = {}
+    Character:WaitForChild("Head")
+    for _, BasePart in pairs(Character:GetChildren()) do
+        if not BasePart:IsA("BasePart") then continue end
+        NoclipParts[#NoclipParts + 1] = BasePart
+    end
+end
+
+
 local function IsAlive(Model)
     if not Model or not Model.Parent then return end
     local Humanoid = Model:FindFirstChildWhichIsA("Humanoid")
@@ -200,20 +211,18 @@ local function Teleport(Position)
     if not HumanoidRootPart then return end
     HumanoidRootPart.Anchored = false
 
-    if Client:DistanceFromCharacter(Position) > 10 and TargetMob.Name ~= "Boss" then
+    if Client:DistanceFromCharacter(Position) > 20 and TargetMob.Name ~= "Boss" then
         local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
-        TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position.X, Position.Y + 7, Position.Z)})
-        HumanoidRootPart.Anchored = true
+        TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position)})
         TweenObject:Play()
-        HumanoidRootPart.Anchored = false
     else
-        HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, -10, 0) * CFrame.Angles(math.rad(90),0,0)
+        HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, -7, 0) * CFrame.Angles(math.rad(90),0,0)
     end 
 
 end
 
 --//Init
-RunService.Heartbeat:Connect(function()
+RunService.Stepped:Connect(function()
     if not Library.flags.MobFarm then return end
     if not Character then return end
 
@@ -229,12 +238,29 @@ RunService.Heartbeat:Connect(function()
     Attack()
 end)
 
+RunService.Stepped:Connect(function() --noclip
+    for i = 1, #NoclipParts do
+        NoclipParts[i].CanCollide = false
+    end
+
+
+    local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+    if not HumanoidRootPart then return end
+
+    if HumanoidRootPart.RotVelocity.Magnitude >= 50 or HumanoidRootPart.Velocity.Magnitude >= 50 then --prevent fling
+        HumanoidRootPart.RotVelocity = Vector3.new()
+        HumanoidRootPart.Velocity = Vector3.new()
+    end 
+end)
+
 Client.CharacterAdded:Connect(function(NewCharacter)
     Character = NewCharacter
+    AddNoclipParts(NewCharacter)
     HideName()
     GetLair()
     RunGetItem()
 end)
+AddNoclipParts(Character)
 
 ItemFolder.ChildAdded:Connect(GetItem)
 workspace.ChildAdded:Connect(GetItem)
