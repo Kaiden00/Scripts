@@ -209,15 +209,12 @@ local function Teleport(Position)
 
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
     if not HumanoidRootPart then return end
-    HumanoidRootPart.Anchored = false
 
-    if Client:DistanceFromCharacter(Position) > 10 then
+    if Client:DistanceFromCharacter(Position) > 15 then
         local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
         TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position)})
-        HumanoidRootPart.Anchored = true
         TweenObject:Play()
         TweenObject.Completed:Wait()
-        HumanoidRootPart.Anchored = false
     else
         HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, 8, 0) * CFrame.Angles(math.rad(-90),0,0)
     end
@@ -245,7 +242,6 @@ RunService.Heartbeat:Connect(function()
 end)
 
 RunService.Stepped:Connect(function() --noclip
-
     if Library.flags.MobFarm then 
         for i = 1, #NoclipParts do
             NoclipParts[i].CanCollide = false
@@ -311,7 +307,7 @@ MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lairs", flag = "LairTarget", values = {"Lvl. 15", "Lvl. 40", "Lvl. 80", "Lvl. 100"}})
 MainFolder:AddList({text = "Stand Farm", flag = "TargetStand", values = StandList})
 MainFolder:AddList({text = "Arrow Selector[Stand Farm]", flag = "Arrow", values = {"Stand Arrow", "Charged Arrow"}})
-MainFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 100, max = 150})
+MainFolder:AddSlider({text = "Tween Speed", flag = "TweenSpeed", min = 50, max = 250})
 
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
 MainFolder:AddToggle({text = "Lair Farm", flag = "LairFarm", callback = GetLair}) --get lair quest
