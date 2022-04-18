@@ -211,14 +211,16 @@ local function Teleport(Position)
     if not HumanoidRootPart then return end
     HumanoidRootPart.Anchored = false
 
-    if Client:DistanceFromCharacter(Position) > 20 and TargetMob.Name ~= "Boss" then
+    if Client:DistanceFromCharacter(Position) > 12 then
         local Info = TweenInfo.new((Position - HumanoidRootPart.Position).Magnitude/Library.flags.TweenSpeed, Enum.EasingStyle.Linear)
         TweenObject = game:GetService("TweenService"):Create(HumanoidRootPart, Info, {CFrame = CFrame.new(Position)})
+        HumanoidRootPart.Anchored = true
         TweenObject:Play()
+        TweenObject.Completed:Wait()
+        HumanoidRootPart.Anchored = false
     else
-        HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, -7, 0) * CFrame.Angles(math.rad(90),0,0)
-    end 
-
+        HumanoidRootPart.CFrame = CFrame.new(Position) * CFrame.new(0, 8, 0) * CFrame.Angles(math.rad(-90),0,0)
+    end
 end
 
 --//Init
@@ -239,10 +241,12 @@ RunService.Heartbeat:Connect(function()
 end)
 
 RunService.Stepped:Connect(function() --noclip
-    for i = 1, #NoclipParts do
-        NoclipParts[i].CanCollide = false
-    end
 
+    if Library.flags.MobFarm then 
+        for i = 1, #NoclipParts do
+            NoclipParts[i].CanCollide = false
+        end
+    end
 
     local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
     if not HumanoidRootPart then return end
