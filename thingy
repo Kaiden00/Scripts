@@ -81,6 +81,12 @@ local function GetQuest()
     local NPC = QuestList[Library.flags.Target]
     if not NPC then return end
 
+    local Boss = LivingFolder:FindFirstChild("Boss")
+    if Boss and Library.flags.LairFarm then
+        TargetMob = Boss
+        return
+    end 
+
     for _, Folder in ipairs(QuestFolder:GetChildren()) do 
         local EnemyObject = Folder:FindFirstChild("Enemy")
 
