@@ -212,7 +212,7 @@ local function OnCharacterAdded(Character)
             GetQuest()
         end
         
-        HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0, 0, Library.flags.MobDistance)
+        HumanoidRootPart.CFrame = TargetMob.HumanoidRootPart.CFrame * CFrame.new(0, Library.flags.MobDistance, 0) * CFrame.Angles(math.rad(90), 0, 0)
         Attack(Character)
     end))
     CurrentMaid:GiveTask(RunService.Stepped:Connect(function()
@@ -297,7 +297,7 @@ Window:AddBind({text = "UI Toggle", key = Enum.KeyCode.End, callback = function(
 --Main Folder
 MainFolder:AddList({text = "Mob Target", flag = "Target", values = MobValues})
 MainFolder:AddList({text = "Lair Target", flag = "LairTarget", values = {"Lvl. 15", "Lvl. 40", "Lvl. 80", "Lvl. 100"}}) 
-MainFolder:AddSlider({text = "Mob Distance", flag = "MobDistance", min = 4, max = 10})
+MainFolder:AddSlider({text = "Mob Distance", flag = "MobDistance", min = -8, max = 5})
 MainFolder:AddBox({text = "Auto Farm Players", flag = "TargetPlayer"})
 
 MainFolder:AddToggle({text = "ENABLE FARM", flag = "MobFarm"})
