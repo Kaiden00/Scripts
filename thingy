@@ -292,25 +292,6 @@ for _, StandObject in ipairs(ReplicatedStorage.StandNameConvert:GetChildren()) d
 end
 
 --//UI shit
-Window:AddLabel({text = "Kaiden#2444"})
-Window:AddLabel({text = "Arfihk is a skid + bozo!"})
-Window:AddLabel({text = "Raijin is a mega skid!"})
-
---[[
-Window:AddButton({text = "Copy Discord Link", callback = function()
-    setclipboard(tostring("https://discord.gg/HvT6Vdfbsb"))
-    
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Copied Discord Invite", 
-        Text = "Join Kaiden Hub Now!"
-    })
-    game.StarterGui:SetCore("SendNotification", {
-        Title = "Arfihk + Raijin = L", 
-        Text = "Imagine put the script in linkvertise. use bypass.vip to bypass it!"
-    })
-end})
---]]
-
 Window:AddBind({text = "UI Toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 
 --Main Folder
