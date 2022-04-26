@@ -78,6 +78,7 @@ for _, ScreenGui in ipairs(PlayerGui:GetChildren()) do
     getgenv().Menu = ScreenGui
 end
 
+
 local Old; Old = hookmetamethod(game, "__newindex", newcclosure(function(self, ...)
     local Args = {...}
     local Property = Args[1]
@@ -91,6 +92,15 @@ local Old; Old = hookmetamethod(game, "__newindex", newcclosure(function(self, .
     return Old(self, ...)
 end))
 
+local OldNameCall; OldNameCall = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+    if getnamecallmethod() == "FireServer" and tostring(self) == "RemoteEvent" and self:IsDescendantOf(game:GetService("ReplicatedStorage").Events) then
+        return wait(9e9)
+    end
+    
+    return OldNameCall(self, ...)
+end))
+
+Window:AddLabel({text = "Bypassed trash anti!"})
 Folder:AddToggle({text = "AutoPlayer", flag = "AutoPlayer"})
 Window:AddBind({text = "Menu toggle", key = Enum.KeyCode.End, callback = function() Library:Close() end})
 
