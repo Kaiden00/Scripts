@@ -1,8 +1,3 @@
-
---If you want to server hop and still farm then put the script in your auto execute file
-
-getgenv().CanServerHop = true --Set to "false" if you don't want it to server hop(Would recommend to have it enabled)
-
 if not game:IsLoaded() then 
     game.Loaded:Wait()
 end 
