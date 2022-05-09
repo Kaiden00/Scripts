@@ -1,3 +1,12 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/wally-rblx/uwuware-ui/main/main.lua"))() --credits to Jan
+local Window = Library:CreateWindow("Instructions")
+
+Window:AddLabel({text = "Requires: Bank card and 1$"})
+
+Window:AddLabel({text = "1. Go to ATM and insert card"})
+Window:AddLabel({text = "2. Money should increase"})
+
+Library:Init()
 
 _, Protected_by_MoonSecV2, Discord = 'discord.gg/gQEH2uZxUk'
 
