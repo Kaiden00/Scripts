@@ -23,3 +23,5 @@ Client.CharacterAdded:Connect(OnCharacterAdded)
 if Client.Character then 
     task.spawn(OnCharacterAdded, Client.Character)
 end
+
+warn("Loaded bypass!")
