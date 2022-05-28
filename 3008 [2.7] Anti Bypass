@@ -1,0 +1,25 @@
+local Client = game:GetService("Players").LocalPlayer
+
+local function OnCharacterAdded(Character)
+    task.wait(2)
+    for _, Connection in ipairs(getconnections(Character:WaitForChild("Humanoid").Changed)) do 
+        Connection:Disable()
+    end 
+end
+
+local Old; Old = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
+    local Method = getnamecallmethod()
+    
+    if not checkcaller() and tostring(getcallingscript()) == "Interaction" then 
+        if Method == "Destroy" or Method == "BreakJoints" or Method == "InvokeServer" and tostring(self) == "MainEvent" then 
+            return
+        end 
+    end
+    
+    return Old(self, ...)
+end))
+
+Client.CharacterAdded:Connect(OnCharacterAdded)
+if Client.Character then 
+    task.spawn(OnCharacterAdded, Client.Character)
+end
