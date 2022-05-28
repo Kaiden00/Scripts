@@ -1,3 +1,6 @@
+assert(not Debounce, "Already executed bypass")
+getgenv().Debounce = true
+
 local Client = game:GetService("Players").LocalPlayer
 
 local function OnCharacterAdded(Character)
