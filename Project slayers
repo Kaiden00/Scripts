@@ -1,19 +1,4 @@
 
-local hook = clonefunction(hookfunction)
-
-hook(getrawmetatable, function()
-    return wait(9e9)
-end)
-
-hook(hookmetamethod, function()
-    return wait(9e9)
-end)
-
-hook(getnamecallmethod, function()
-    return
-end)
-
-task.wait(1)
 
 local DataTable = {
     "Yen",
