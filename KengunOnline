@@ -1,0 +1,104 @@
+if game.PlaceId ~= 11637068797 then
+    return game:GetService("TeleportService"):Teleport(11637068797)
+end 
+
+game:GetService("GuiService").ErrorMessageChanged:Connect(function()
+    game:GetService("TeleportService"):Teleport(11637068797)
+end)
+
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+getgenv().IsEnabled = true
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+
+local DataFunction = game:GetService("ReplicatedStorage").Communication.Functions.ClientData
+local QuestEvent = game:GetService("ReplicatedStorage").Communication.Events.QuestEvent
+
+local Client = Players.LocalPlayer
+local QuestNPCs = workspace.World.NPCs.Quests
+
+local Equipments = game:GetService("Workspace").World.Map["Training Equipment"]:GetChildren()
+local RemoteManager = require(game.ReplicatedStorage["Modules"]["GlobalModules"]).RemoteManager
+
+local function OnCharacterAdded(Character, IsNew)
+    local PrimaryPart = Character:WaitForChild("HumanoidRootPart")
+    local Humanoid = Character:WaitForChild("Humanoid")
+    
+    if not IsNew then
+        PrimaryPart.CFrame = game:GetService("Workspace").World.Map["Training Equipment"]["WingChun"].HumanoidRootPart.CFrame + Vector3.new(5, 0, -3)
+    else
+        Humanoid:Destroy()
+        return
+    end
+
+    Character:GetPropertyChangedSignal("Parent"):Connect(function()
+        if Character and Character.Parent and Character.Parent.Name ~= "DownedCharacters" then return end
+        Humanoid:Destroy()
+    end)
+    
+    task.spawn(function()
+        while Humanoid and Humanoid.Parent do
+            pcall(function()
+                Humanoid:EquipTool(Client.Backpack.Combat) 
+            end)
+            PrimaryPart.CFrame = game:GetService("Workspace").World.Map["Training Equipment"]["WingChun"].HumanoidRootPart.CFrame + Vector3.new(5, 0, -3)
+            RemoteManager.FireConnection("CombatEvent", {
+            	Side = "Client"
+            }, "SoundEffects", {
+            	AttackType = "Light", 
+            	Info = 0.1
+            });
+            for _, Equipment in ipairs(Equipments) do
+                if Client:DistanceFromCharacter(Equipment.HumanoidRootPart.Position) > 15 then continue end
+                
+                RemoteManager.FireConnection("CombatEvent", {Side = "Client"}, "RegisterHit", {
+                	FoundPlayers = Equipment, 
+                	Ticks = 1, 
+                	AttackType = "Light", 
+                	C = Equipment.HumanoidRootPart.CFrame
+                })
+            end
+            
+            task.wait(0.2)
+        end 
+    end)
+end
+
+if Client.Character then
+    task.spawn(OnCharacterAdded, Client.Character, true)
+end
+
+Client.CharacterAdded:Connect(OnCharacterAdded)
+
+--//ping handler (rejoin if ping is high)
+--CONSTANTS
+local MAX_PING = 1000 --The ping we flag
+local MAX_FLAGS = 1 --amount of flags before we rejoin
+local FLAG_COOLDOWN = 3 --cooldown between flags
+
+--Variables
+local Flags = 0
+local LastFlag = os.clock()
+local DataPingObject = game:GetService("Stats"):WaitForChild("Network"):WaitForChild("ServerStatsItem")["Data Ping"]
+
+--Main
+if not Client.Character then Client.CharacterAdded:Wait() end
+local Connection; Connection = game:GetService("RunService").RenderStepped:Connect(function()
+    if os.clock() - LastFlag < FLAG_COOLDOWN then return end --if the last time we flagged was less than 3 seconds then dont do anything
+
+    if DataPingObject:GetValue() > MAX_PING then --checking for ping fluctuations
+        if Flags >= MAX_FLAGS then
+            Connection:Disconnect()
+            game:GetService("TeleportService"):Teleport(11637068797)
+            print("Rejoining...")
+            return
+        end
+        LastFlag = os.clock()
+        Flags = Flags + 1
+        print("Flagged!!!!!")
+    end
+end)
