@@ -91,6 +91,10 @@ local Connection; Connection = game:GetService("RunService").RenderStepped:Conne
     if os.clock() - FirstStart <= 5 then return end --dont check anything if we executed less than 5 seconds ago(we could get high ping at start)
     if os.clock() - LastFlag < FLAG_COOLDOWN then return end --if the last time we flagged was less than 3 seconds then dont do anything
     
+    Flags = Flags + 1
+    LastFlag = os.clock()
+    print("FLAGGED!!!")
+    
     if DataPingObject:GetValue() > MAX_PING then --checking for ping fluctuations
         if Flags >= MAX_FLAGS then
             Connection:Disconnect()
@@ -98,8 +102,5 @@ local Connection; Connection = game:GetService("RunService").RenderStepped:Conne
             print("Rejoining...")
             return
         end
-        LastFlag = os.clock()
-        Flags = Flags + 1
-        print("Flagged!!!!!")
     end
 end)
