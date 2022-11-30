@@ -1,5 +1,8 @@
 game:GetService("GuiService").ErrorMessageChanged:Connect(function()
-    game:GetService("TeleportService"):Teleport(11637068797)
+    while true do
+        game:GetService("TeleportService"):Teleport(11637068797)
+        task.wait(1)
+    end
 end)
 
 if not game:IsLoaded() then
