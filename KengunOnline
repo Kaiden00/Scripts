@@ -1,5 +1,5 @@
 
-getgenv().TrainType = "Strength" --Options: Durability, Strength
+getgenv().TrainType = "Durability" --Options: Durability, Strength
 getgenv().TweenSpeed = 75
 
 game:GetService("GuiService").ErrorMessageChanged:Connect(function()
