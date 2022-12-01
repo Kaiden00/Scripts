@@ -80,6 +80,9 @@ local function OnCharacterAdded(Character, IsNew)
             if TrainType == "Strength" then
                 if not Character:FindFirstChild("BoxingGlovesModel") and not Client.Backpack:FindFirstChild("Boxing Gloves") and not Character:FindFirstChild("Boxing Gloves") then
                     repeat
+                        if Client.Character:FindFirstChild("Combat") then
+                            Client.Character.Combat.Parent = Client.Backpack
+                        end 
                         local Info = TweenInfo.new((PrimaryPart.Position - BoxingGloves.Decor.Position).Magnitude / TweenSpeed)
                         local Tween = TweenService:Create(PrimaryPart, Info, {CFrame = BoxingGloves.Decor.CFrame})
                         Tween:Play()
