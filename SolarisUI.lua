@@ -27,8 +27,6 @@ local function CheckKey(tab, key)
 	end
 end
 
-
-
 local NotificationFrame = game:GetObjects("rbxassetid://6924028278")[1]
 NotificationFrame.ZIndex = 4
 NotificationFrame.Parent = NotificationHolder
@@ -160,6 +158,8 @@ local SolarisLib = {
 }
 
 
+local ThemeChanged = Instance.new("BindableEvent")
+
 
 local MainUI = game:GetObjects("rbxassetid://7835727566")[1]
 print("SolarisLib Loaded!")
@@ -195,7 +195,7 @@ end
 
 
 function Ripple(Object)
-	spawn(function()
+	task.spawn(function()
 		local Circle = Instance.new("ImageLabel")
 		Circle.Parent = Object
 		Circle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -207,8 +207,8 @@ function Ripple(Object)
 		Circle.Position = UDim2.new(0, Mouse.X - Circle.AbsolutePosition.X, 0, Mouse.Y - Circle.AbsolutePosition.Y)
 		local Size = Object.AbsoluteSize.X
 		TweenService:Create(Circle, TweenInfo.new(0.5), {Position = UDim2.fromScale(math.clamp(Mouse.X - Object.AbsolutePosition.X, 0, Object.AbsoluteSize.X)/Object.AbsoluteSize.X,Object,math.clamp(Mouse.Y - Object.AbsolutePosition.Y, 0, Object.AbsoluteSize.Y)/Object.AbsoluteSize.Y) - UDim2.fromOffset(Size/2,Size/2), ImageTransparency = 1, Size = UDim2.fromOffset(Size,Size)}):Play()
-		spawn(function()
-			wait(0.5)
+		task.spawn(function()
+			task.wait(0.5)
 			Circle:Destroy()
 		end)
 	end)
@@ -387,8 +387,7 @@ function SolarisLib:New(Config)
         end)
 
         
-        spawn(function()
-            while wait() do
+            ThemeChanged.Event:Connect(function()
                 MusicFrame.Frame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
                 MusicFrame.Frame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
                 MusicFrame.Frame.TopBar.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
@@ -397,7 +396,6 @@ function SolarisLib:New(Config)
                 MusicFrame.Frame.Progress.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Slider
                 MusicFrame.Frame.Progress.ProgressFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderInc
                 MusicFrame.Frame.AddSong.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Textbox
-            end
         end)
     end  
 
@@ -425,15 +423,13 @@ function SolarisLib:New(Config)
         end    
 
         
-        spawn(function()
-            while wait() do
+            ThemeChanged.Event:Connect(function()
                 SFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
                 SFrame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
                 SFrame.TopBar.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                 SFrame.TopBar.TopFrameTitle.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                 SFrame.TabHolder.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
 
-            end
         end)
 
         function Settings:Tab(text)
@@ -491,12 +487,10 @@ function SolarisLib:New(Config)
                     SetValue(not value)     
                 end)
 
-                spawn(function()
-                    while wait() do
+                    ThemeChanged.Event:Connect(function()
                         Toggle.ToggleFrame.ToggleToggled.BackgroundColor3 = value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
                         Toggle.ToggleFrame.BackgroundColor3 = value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleFrame
                         Toggle.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
             end
             function TabHold:BindSetting(title, desc, def, path)
@@ -543,12 +537,10 @@ function SolarisLib:New(Config)
                     end
                 end)
 
-                spawn(function()
-                    while wait() do
+                    ThemeChanged.Event:Connect(function()
                         Bind.Desc.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                         Bind.BText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                         Bind.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
             
             end    
@@ -591,22 +583,19 @@ function SolarisLib:New(Config)
                             value = option
                             SolarisLib.Settings[path] = value
                             Dropdown.Main.Current.Text = value
+                            ThemeChanged:Fire()
                             SaveSettings()
                         end)
 
-                        spawn(function()
-                            while wait() do
-                               Option.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor       
-                            end
+                        ThemeChanged.Event:Connect(function()
+                            Option.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor       
                         end)
                     end   
                 end    
 
-                spawn(function()
-                    while wait() do
+                ThemeChanged.Event:Connect(function()
                         Dropdown.Main.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
                         Dropdown.Main.Holder.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-                    end
                 end)
                 AddOptions(list)
             end
@@ -697,8 +686,7 @@ function SolarisLib:New(Config)
 		end
 	end)
 
-    spawn(function()
-        while wait() do
+        ThemeChanged.Event:Connect(function()
             MFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].MainFrame
             MFrame.TopBar.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
             MFrame.TopBar.ButtonHolder.CloseBtn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
@@ -712,14 +700,13 @@ function SolarisLib:New(Config)
             MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
             MFrame.TopBar.ButtonHolder.SearchBtn.TextBox.PlaceholderColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
             MFrame.TopBar.ButtonHolder.MenuBtn.MenuFrame.Frame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TopBar
-        end
     end)
 
     function SolarisLib:LoadCfg(cfg)
         local content = http:JSONDecode(cfg)
         table.foreach(content, function(a,b)
             if SolarisLib.Flags[a] then
-                spawn(function() SolarisLib.Flags[a]:Set(b) end)
+                task.spawn(function() SolarisLib.Flags[a]:Set(b) end)
             else
                 warn("cfg loader - could not find", a ,b )
             end
@@ -757,12 +744,10 @@ function SolarisLib:New(Config)
             SolarisLib.CurrentTab = Container  
         end    
 
-        spawn(function()
-            while wait() do
+            ThemeChanged.Event:Connect(function()
                 Tab.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                 Tab.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TabToggled
                 Container.CanvasSize = UDim2.new(0,0,0,Container.UIListLayout.AbsoluteContentSize.Y + 26)
-            end
         end)
 
 
@@ -795,11 +780,9 @@ function SolarisLib:New(Config)
             Section.Parent = Container
             Section.SectionTitle.Text = text
 
-            spawn(function()
-                while wait() do
+                ThemeChanged.Event:Connect(function()
                     Section.SectionTitle.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                     Section.Size = UDim2.new(0.9,0,0,Section.UIListLayout.AbsoluteContentSize.Y)
-                end
             end)
             local ItemHold = {}
             function ItemHold:Button(text,callback)
@@ -821,11 +804,9 @@ function SolarisLib:New(Config)
                     Holding = false
                 end)
 
-                spawn(function()
-                    while wait() do
-                       Button.BackgroundColor3 = Holding and SolarisLib.Themes[SolarisLib.Settings.Theme].ButtonHold or SolarisLib.Themes[SolarisLib.Settings.Theme].Button
+                    ThemeChanged.Event:Connect(function()
+                        Button.BackgroundColor3 = Holding and SolarisLib.Themes[SolarisLib.Settings.Theme].ButtonHold or SolarisLib.Themes[SolarisLib.Settings.Theme].Button
                        Button.ButtonText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
             end    
@@ -847,13 +828,11 @@ function SolarisLib:New(Config)
 					Toggle:Set(Toggle.Value)           
 				end)
 
-                spawn(function()
-                    while wait() do
+                    ThemeChanged.Event:Connect(function()
                         ToggleMain.ToggleFrame.ToggleToggled.BackgroundColor3 = Toggle.Value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].Toggle
                         ToggleMain.ToggleFrame.BackgroundColor3 = Toggle.Value and SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleToggled or SolarisLib.Themes[SolarisLib.Settings.Theme].ToggleFrame
                         ToggleMain.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Toggle
                         ToggleMain.ToggleText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
 				Toggle:Set(def)
@@ -889,14 +868,12 @@ function SolarisLib:New(Config)
 					return callback(Slider.Value)
 				end	
 
-                spawn(function()
-                    while wait() do
-                       SliderMain.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Slider
+                    ThemeChanged.Event:Connect(function()
+                        SliderMain.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Slider
                        SliderMain.SliderFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderBar
                        SliderMain.SliderFrame.SliderCurrentFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].SliderInc
                        SliderMain.SliderText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                        SliderMain.SliderVal.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
 
@@ -933,11 +910,9 @@ function SolarisLib:New(Config)
                             return callback(Dropdown.Value)
                         end)
 
-                        spawn(function()
-                            while wait() do
-                               Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
+                            ThemeChanged.Event:Connect(function()
+                                Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
                                DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                            end
                         end)
                     end   
                 end    
@@ -966,12 +941,10 @@ function SolarisLib:New(Config)
 					return callback(Dropdown.Value)
 				end
 
-                spawn(function()
-                    while wait() do
-                       DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
+                    ThemeChanged.Event:Connect(function()
+                        DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
                        DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                        DropMain.Btn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
                 Dropdown:Refresh(list,false)
@@ -1014,11 +987,9 @@ function SolarisLib:New(Config)
                             Ripple(Option)
                         end)
 
-                        spawn(function()
-                            while wait() do
-                               Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
+                            ThemeChanged.Event:Connect(function()
+                                Option.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].DropdownItem
                                DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                            end
                         end)
                     end   
                 end    
@@ -1047,13 +1018,11 @@ function SolarisLib:New(Config)
 					return callback(Dropdown.Value)
 				end
 
-                spawn(function()
-                    while wait() do
-                       DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
+                    ThemeChanged.Event:Connect(function()
+                        DropMain.Btn.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Dropdown
                        DropMain.Btn.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                        DropMain.Btn.Ico.ImageColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
-                end)
+              end)
 
                 Dropdown:Refresh(list,false)
                 Dropdown:Set(def)
@@ -1143,11 +1112,9 @@ function SolarisLib:New(Config)
                     end
                 end)
 
-                spawn(function()
-                    while wait() do
-                       ColorPreset.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Colorpicker
+                    ThemeChanged.Event:Connect(function()
+                        ColorPreset.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Colorpicker
                        ColorPreset.Btn.Colorpicker.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
                 return ColorPicker
@@ -1164,11 +1131,9 @@ function SolarisLib:New(Config)
                 end    
 
                 
-                spawn(function()
-                    while wait() do
-                       LabelFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Label
+                    ThemeChanged.Event:Connect(function()
+                        LabelFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Label
                        LabelFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
                 return Label
@@ -1205,13 +1170,11 @@ function SolarisLib:New(Config)
 					end
 				end)
                 
-                spawn(function()
-                    while wait() do
-                       TextboxFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Textbox
+                    ThemeChanged.Event:Connect(function()
+                        TextboxFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Textbox
                        TextboxFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                        TextboxFrame.Box.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextboxFrame
                        TextboxFrame.Box.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
                 return Textbox
             end    
@@ -1273,12 +1236,10 @@ function SolarisLib:New(Config)
                     BindFrame.BText.Text = self.Value
 				end
 
-                spawn(function()
-                    while wait() do
-                       BindFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Bind
+                    ThemeChanged.Event:Connect(function()
+                        BindFrame.BackgroundColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].Bind
                        BindFrame.Title.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
                        BindFrame.BText.TextColor3 = SolarisLib.Themes[SolarisLib.Settings.Theme].TextColor
-                    end
                 end)
 
 				Bind:Set(preset)
