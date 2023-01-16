@@ -27,8 +27,9 @@ local ShopFolder = Window:AddFolder("Shop")
 local MiscFolder = Window:AddFolder("Misc")
 local CreditsFolder = Window:AddFolder("Credits")
 
+local Map = workspace.Map
 local ItemFolder = workspace.Items
-local NPCFolder = workspace:FindFirstChild("Fartinglloll") or workspace:FindFirstChild("Npcs")
+local NPCFolder = Map:FindFirstChild("NPCs")
 local LivingFolder = workspace.Living
 
 local TargetMob = nil
