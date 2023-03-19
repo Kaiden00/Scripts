@@ -1,7 +1,4 @@
 
-_G.IsEnabled = true --set to true/false to toggle
-
-
 local Players = game:GetService("Players")
 local Client = Players.LocalPlayer
 
@@ -21,6 +18,10 @@ local function IsAlive(Model)
     return true
 end
 
+local function IsInRange(Position1, Position2, MaxDistance)
+    return (Position1 - Position2).Magnitude <= MaxDistance
+end
+
 local function SendNotification(Title, Text, Duration)
 	game:GetService("StarterGui"):SetCore("SendNotification", {
 		Title = Title,
@@ -38,10 +39,9 @@ local function GetJob()
 	end 
 end
 
---function to complete the job by getting crate and then firing the touchinterest to complete job(so we won't need to teleport back)
+--function to complete the job by getting crate and then firing the touchinterest to complete job(so we won't need to teleport back
 local function DoJob(Character)
 	local PrimaryPart = Character.HumanoidRootPart
-	PrimaryPart.CFrame = Crates.CFrame
 
 	local function CompleteJob()
 		firetouchinterest(PrimaryPart, CratePoint, 0)
@@ -49,6 +49,10 @@ local function DoJob(Character)
 
 		if not Character:FindFirstChild("GetCrates") then return end
 		CompleteJob() --call function again if job hasn't been completed
+	end
+
+	if not IsInRange(PrimaryPart.Position, Crates.Position, 15) then --teleport them to crate if they are not near it
+		PrimaryPart.CFrame = Crates.CFrame
 	end
 
 	fireclickdetector(Crates.ClickDetector)
