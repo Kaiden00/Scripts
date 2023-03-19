@@ -51,7 +51,7 @@ local function DoJob(Character)
 		CompleteJob() --call function again if job hasn't been completed
 	end
 
-	if not IsInRange(PrimaryPart.Position, Crates.Position, 15) then --teleport them to crate if they are not near it
+	if not IsInRange(PrimaryPart.Position, Crates.Position, 8) then --teleport them to crate if they are not near it
 		PrimaryPart.CFrame = Crates.CFrame
 	end
 
