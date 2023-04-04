@@ -28,4 +28,6 @@ local function ImprovedTeleport(Target)
     until (HRP.Position - Target).magnitude <= TeleportSpeed / 2;
     HRP.Anchored = false;
     HRP.CFrame = CFrame.new(Target);
-end;
+end
+
+return ImprovedTeleport
