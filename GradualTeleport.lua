@@ -20,7 +20,14 @@ local function ImprovedTeleport(Target)
     if (not HRP) then return; end;
 
     local StartingPosition = HRP.Position;
-    local PositionDelta = (Target - StartingPosition);--Calculating the difference between the start and end positions.
+    local PositionDelta = (Target - StartingPosition);
+    
+    local Hit, HitPosition = workspace:FindPartOnRay(Ray.new(StartingPosition, PositionDelta.Unit * PositionDelta.magnitude));
+    if Hit then
+        Target = HitPosition
+        PositionDelta = (Target - StartingPosition)
+    end
+
     local StartTime = tick();
     local TotalDuration = (StartingPosition - Target).magnitude / Teleport.TeleportSpeed;
     
@@ -29,16 +36,15 @@ local function ImprovedTeleport(Target)
     
     repeat NextFrame:Wait();
         local Delta = tick() - StartTime;
-        local Progress = math.min(Delta / TotalDuration, 1);--Getting the percentage of completion of the teleport (between 0-1, not 0-100)
-        --We also use math.min in order to maximize it at 1, in case the player gets an FPS drop, so it doesn't go past the target.
+        local Progress = math.min(Delta / TotalDuration, 1);
         local MappedPosition = StartingPosition + (PositionDelta * Progress);
-        HRP.Velocity = Vector3.new();--Resetting the effect of gravity so it doesn't get too much and drag the player below the ground.
+        HRP.Velocity = Vector3.new();
         HRP.CFrame = CFrame.new(MappedPosition);
     until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
     
     HRP.Anchored = false;
     
-    if OldTeleportCount ~= _G.TeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
+    if OldTeleportCount ~= _G.TeleportCount then return end
     HRP.CFrame = CFrame.new(Target);
 end
 
