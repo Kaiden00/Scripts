@@ -21,32 +21,45 @@ local function ImprovedTeleport(Target)
 
     local StartingPosition = HRP.Position;
     local PositionDelta = (Target - StartingPosition);
-    
-    local Hit, HitPosition = workspace:FindPartOnRay(Ray.new(StartingPosition, PositionDelta.Unit * PositionDelta.magnitude));
-    if Hit then
-        Target = HitPosition
-        PositionDelta = (Target - StartingPosition)
-    end
-
     local StartTime = tick();
     local TotalDuration = (StartingPosition - Target).magnitude / Teleport.TeleportSpeed;
-    
+
     _G.TeleportCount += 1
     OldTeleportCount = _G.TeleportCount
+
+    local lastProgress = 0
+
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {Player.Character}
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
     
     repeat NextFrame:Wait();
         local Delta = tick() - StartTime;
         local Progress = math.min(Delta / TotalDuration, 1);
         local MappedPosition = StartingPosition + (PositionDelta * Progress);
         HRP.Velocity = Vector3.new();
+
+        -- Check if the player is about to go into the air and adjust the target position
+        local raycastResult = workspace:Raycast(MappedPosition, Vector3.new(0, -5, 0), raycastParams)
+        if raycastResult and raycastResult.Position.Y > MappedPosition.Y - 1.5 then
+            -- If there's an object in the way, move the target position down
+            Target = MappedPosition - Vector3.new(0, raycastResult.Position.Y - MappedPosition.Y + 1.5, 0)
+            PositionDelta = (Target - StartingPosition)
+            Progress = lastProgress -- Restore the last progress value to avoid jumping
+        else
+            -- Otherwise, update the last progress value
+            lastProgress = Progress
+        end
+
         HRP.CFrame = CFrame.new(MappedPosition);
     until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
-    
+
     HRP.Anchored = false;
-    
+
     if OldTeleportCount ~= _G.TeleportCount then return end
     HRP.CFrame = CFrame.new(Target);
 end
+
 
 Teleport.TeleportTo = ImprovedTeleport
 
