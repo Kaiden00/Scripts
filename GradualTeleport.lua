@@ -20,36 +20,27 @@ local function ImprovedTeleport(Target)
     if (not HRP) then return; end;
 
     local StartingPosition = HRP.Position;
-    local PositionDelta = (Target - StartingPosition);
-    local TotalDistance = PositionDelta.magnitude;
-    local TotalDuration = TotalDistance / Teleport.TeleportSpeed;
-
-    local RaycastParams = RaycastParams.new();
-    RaycastParams.FilterType = Enum.RaycastFilterType.Blacklist;
-    RaycastParams.IgnoreWater = true;
-    RaycastParams.CollisionGroup = "Default";
-
+    local PositionDelta = (Target - StartingPosition);--Calculating the difference between the start and end positions.
+    local StartTime = tick();
+    local TotalDuration = (StartingPosition - Target).magnitude / Teleport.TeleportSpeed;
+    
     _G.TeleportCount += 1
-    local OldTeleportCount = _G.TeleportCount
-    local StartTime = tick()
-
-    local Velocity = PositionDelta.unit * TotalDistance / TotalDuration
-
-    repeat 
+    OldTeleportCount = _G.TeleportCount
+    
+    repeat NextFrame:Wait();
         local Delta = tick() - StartTime;
-        local Progress = math.min(Delta / TotalDuration, 1);
-        local MappedPosition = StartingPosition + Velocity * Delta
-        HRP.Velocity = Vector3.new();
+        local Progress = math.min(Delta / TotalDuration, 1);--Getting the percentage of completion of the teleport (between 0-1, not 0-100)
+        --We also use math.min in order to maximize it at 1, in case the player gets an FPS drop, so it doesn't go past the target.
+        local MappedPosition = StartingPosition + (PositionDelta * Progress);
+        HRP.Velocity = Vector3.new();--Resetting the effect of gravity so it doesn't get too much and drag the player below the ground.
         HRP.CFrame = CFrame.new(MappedPosition);
-        NextFrame:Wait();
     until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
-
+    
     HRP.Anchored = false;
-
-    if OldTeleportCount ~= _G.TeleportCount then return end
+    
+    if OldTeleportCount ~= _G.TeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
     HRP.CFrame = CFrame.new(Target);
 end
-
 
 Teleport.TeleportTo = ImprovedTeleport
 
