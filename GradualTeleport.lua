@@ -30,33 +30,26 @@ local function ImprovedTeleport(Target)
     RaycastParams.CollisionGroup = "Default";
 
     _G.TeleportCount += 1
-    
     local OldTeleportCount = _G.TeleportCount
     local StartTime = tick()
-    
+
+    local Velocity = PositionDelta.unit * TotalDistance / TotalDuration
+
     repeat 
         local Delta = tick() - StartTime;
         local Progress = math.min(Delta / TotalDuration, 1);
-        local MappedPosition = StartingPosition + (PositionDelta * Progress);
-        
-        local RaycastResult = workspace:Raycast(HRP.Position, MappedPosition - HRP.Position, RaycastParams);
-        if RaycastResult then
-            MappedPosition = RaycastResult.Position;
-            PositionDelta = (Target - MappedPosition);
-            TotalDistance = PositionDelta.magnitude;
-            TotalDuration = TotalDistance / Teleport.TeleportSpeed;
-        end
-
+        local MappedPosition = StartingPosition + Velocity * Delta
         HRP.Velocity = Vector3.new();
         HRP.CFrame = CFrame.new(MappedPosition);
         NextFrame:Wait();
-    until (MappedPosition - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
-    
+    until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
+
     HRP.Anchored = false;
-    
+
     if OldTeleportCount ~= _G.TeleportCount then return end
     HRP.CFrame = CFrame.new(Target);
 end
+
 
 Teleport.TeleportTo = ImprovedTeleport
 
