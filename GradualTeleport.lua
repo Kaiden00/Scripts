@@ -30,7 +30,9 @@ local function ImprovedTeleport(Target)
     RaycastParams.CollisionGroup = "Default";
 
     _G.TeleportCount += 1
+    
     local OldTeleportCount = _G.TeleportCount
+    local StartTime = tick()
     
     repeat 
         local Delta = tick() - StartTime;
