@@ -34,11 +34,11 @@ local function ImprovedTeleport(Target)
         local MappedPosition = StartingPosition + (PositionDelta * Progress);
         HRP.Velocity = Vector3.new();--Resetting the effect of gravity so it doesn't get too much and drag the player below the ground.
         HRP.CFrame = CFrame.new(MappedPosition);
-    until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or _G.TeleportCount ~= OldTeleportCount;
+    until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
     
     HRP.Anchored = false;
     
-    if _G.TeleportCount ~= OldTeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
+    if OldTeleportCount ~= _G.TeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
     HRP.CFrame = CFrame.new(Target);
 end
 
