@@ -7,7 +7,7 @@ local Player = Players.LocalPlayer;
 local TeleportSpeed = 50;
 local NextFrame = RunService.Heartbeat;
 
-local function ImprovedTeleport(Target)
+return function ImprovedTeleport(Target)
     if (typeof(Target) == "Instance" and Target:IsA("BasePart")) then Target = Target.Position; end;
     if (typeof(Target) == "CFrame") then Target = Target.p end;
 
