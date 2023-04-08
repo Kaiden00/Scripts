@@ -39,7 +39,7 @@ function Teleport.TeleportTo(Target)
     HRP.Anchored = false;
     
     if OldTeleportCount ~= _G.TeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
-    HRP.CFrame = CFrame.new(Target);
+    --HRP.CFrame = CFrame.new(Target);
 end
 
 return Teleport
