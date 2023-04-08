@@ -12,7 +12,7 @@ local NextFrame = RunService.Heartbeat;
 
 _G.TeleportCount = 0
 
-local function ImprovedTeleport(Target)
+function Teleport.TeleportTo(Target)
     if (typeof(Target) == "Instance" and Target:IsA("BasePart")) then Target = Target.Position; end;
     if (typeof(Target) == "CFrame") then Target = Target.p end;
 
@@ -41,7 +41,5 @@ local function ImprovedTeleport(Target)
     if OldTeleportCount ~= _G.TeleportCount then return end --if we override the teleport to another destination we may not actually be near the target which could kick us
     HRP.CFrame = CFrame.new(Target);
 end
-
-Teleport.TeleportTo = ImprovedTeleport
 
 return Teleport
