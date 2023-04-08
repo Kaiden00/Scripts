@@ -34,7 +34,7 @@ function Teleport.TeleportTo(Target)
         local MappedPosition = StartingPosition + (PositionDelta * Progress);
         HRP.Velocity = Vector3.new();--Resetting the effect of gravity so it doesn't get too much and drag the player below the ground.
         HRP.CFrame = CFrame.new(MappedPosition);
-    until (HRP.Position - Target).magnitude <= Teleport.TeleportSpeed / 2 or OldTeleportCount ~= _G.TeleportCount;
+    until (HRP.Position - Target).magnitude <= 3 or OldTeleportCount ~= _G.TeleportCount;
     
     HRP.Anchored = false;
     
