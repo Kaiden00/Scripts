@@ -105,7 +105,6 @@ end
 
 --Eat most important food(the one that gives most exp)
 local IsEating = false
-local RandomNumber = math.random(2000, 4000) --teleport to a random location
 
 task.defer(function()
     while _G.IsEnabled do
@@ -114,7 +113,7 @@ task.defer(function()
         local Character = Client.Character
 
         if not IsAlive(Character) then continue end
-        Character:PivotTo(CFrame.new(RandomNumber, 200, RandomNumber)) --teleport to secure place
+        Character:PivotTo(CFrame.new(0, 200, 0)) --teleport to secure place
         if IsEating then continue end
 
         UpdateQueue()
@@ -128,7 +127,7 @@ task.defer(function()
         print("Attempting to eat: "..FoodObject:GetAttribute("Type").." Transparency: "..FoodObject.Transparency)
         
         repeat task.wait(GENERAL_LOOP_DELAY)
-            Character:PivotTo(CFrame.new(RandomNumber, 200, RandomNumber)) --teleport to secure place
+            Character:PivotTo(CFrame.new(0, 200, 0)) --teleport to secure place
         until FoodObject.Transparency == 1 or not FoodObject.Parent
 
         ------task.wait(1)
