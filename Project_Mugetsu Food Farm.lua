@@ -9,9 +9,12 @@
 local GENERAL_LOOP_DELAY = 0.05
 
 local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local Client = Players.LocalPlayer
 local Visuals = workspace.World.Visuals
-local Remotes = game:GetService("ReplicatedStorage").Remotes.Server.Initiate_Server
+local Remotes = ReplicatedStorage.Remotes.Server.Initiate_Server
 
 local QueuePriority = { --info from trello not sure if its valid
     Arrancar = 1, -- 4xp
@@ -136,7 +139,7 @@ task.defer(function()
     end
 end)
 
-game:GetService("StarterGui"):SetCore("SendNotification", {
+StarterGui:SetCore("SendNotification", {
     Title = "Credits";
     Text = "Script created by: Kaiden#2444";
     Duration = 5;
