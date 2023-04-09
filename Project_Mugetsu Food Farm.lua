@@ -106,29 +106,37 @@ end
 --Eat most important food(the one that gives most exp)
 local IsEating = false
 
-while _G.IsEnabled do
-    task.wait(GENERAL_LOOP_DELAY)
+task.defer(function()
+    while _G.IsEnabled do
+        task.wait(GENERAL_LOOP_DELAY)
 
-    local Character = Client.Character
+        local Character = Client.Character
 
-    if IsEating then continue end
-    if not IsAlive(Character) then continue end
+        if IsEating then continue end
+        if not IsAlive(Character) then continue end
 
-    UpdateQueue()
-    
-    local FoodObject = FoodQueue[1] --first index = food with most priority aka most exp
-    if not FoodObject then continue end
-    
-    IsEating = true
-    Remotes:FireServer("Eat_Body_Part", FoodObject)
-    
-    print("Attempting to eat: "..FoodObject:GetAttribute("Type").." Transparency: "..FoodObject.Transparency)
-    
-    repeat task.wait(GENERAL_LOOP_DELAY)
-        Character:PivotTo(CFrame.new(0, 200, 0)) --teleport to secure place to prevent attention
-    until FoodObject.Transparency == 1 or not FoodObject.Parent
+        UpdateQueue()
+        
+        local FoodObject = FoodQueue[1] --first index = food with most priority aka most exp
+        if not FoodObject then continue end
+        
+        IsEating = true
+        Remotes:FireServer("Eat_Body_Part", FoodObject)
+        
+        print("Attempting to eat: "..FoodObject:GetAttribute("Type").." Transparency: "..FoodObject.Transparency)
+        
+        repeat task.wait(GENERAL_LOOP_DELAY)
+            Character:PivotTo(CFrame.new(0, 200, 0)) --teleport to secure place to prevent attention
+        until FoodObject.Transparency == 1 or not FoodObject.Parent
 
-    ------task.wait(1)
-    
-    IsEating = false
-end
+        ------task.wait(1)
+        
+        IsEating = false
+    end
+end)
+
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "Credits";
+    Text = "Script created by: Kaiden#2444";
+    Duration = 5;
+})
