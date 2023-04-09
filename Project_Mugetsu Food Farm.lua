@@ -106,7 +106,7 @@ end
 --Eat most important food(the one that gives most exp)
 local IsEating = false
 
-while true do
+while _G.IsEnabled do
     task.wait(GENERAL_LOOP_DELAY)
 
     local Character = Client.Character
