@@ -10,7 +10,7 @@ local GENERAL_LOOP_DELAY = 0.05
 
 local Players = game:GetService("Players")
 local Client = Players.LocalPlayer
-local Visuals = game:GetService("Workspace").World.Visuals
+local Visuals = workspace.World.Visuals
 local Remotes = game:GetService("ReplicatedStorage").Remotes.Server.Initiate_Server
 
 local QueuePriority = { --info from trello not sure if its valid
