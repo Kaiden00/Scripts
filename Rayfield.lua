@@ -1690,6 +1690,7 @@ function RayfieldLibrary:CreateWindow(Settings)
 			    Input.InputFrame.InputBox.Text = NewText
 			    InputSettings.CurrentValue = NewText
 			    
+			    SaveConfiguration()
 			    Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Once(function()
 			        Input.InputFrame.InputBox.Text = NewText
 			        InputSettings.CurrentValue = NewText
