@@ -1,11 +1,8 @@
 --[[
-
 Rayfield Interface Suite
 by Sirius
-
 shlex | Designing + Programming
 iRay  | Programming
-
 ]]
 
 
@@ -1654,11 +1651,11 @@ function RayfieldLibrary:CreateWindow(Settings)
 			Input.InputFrame.Size = UDim2.new(0, Input.InputFrame.InputBox.TextBounds.X + 24, 0, 30)
 
 			Input.InputFrame.InputBox.FocusLost:Connect(function()
-
-
 				local Success, Response = pcall(function()
+				    InputSettings.CurrentValue = Input.InputFrame.InputBox.Text
 					InputSettings.Callback(Input.InputFrame.InputBox.Text)
 				end)
+				
 				if not Success then
 					TweenService:Create(Input, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Input.UIStroke, TweenInfo.new(0.6, Enum.EasingStyle.Quint), {Transparency = 1}):Play()
@@ -1674,7 +1671,6 @@ function RayfieldLibrary:CreateWindow(Settings)
 					Input.InputFrame.InputBox.Text = ""
 				end
 				
-				InputSettings.CurrentValue = Input.InputFrame.InputBox.Text
 				SaveConfiguration()
 			end)
 
@@ -1692,6 +1688,12 @@ function RayfieldLibrary:CreateWindow(Settings)
 			
 			function InputSettings:Set(NewText)
 			    Input.InputFrame.InputBox.Text = NewText
+			    InputSettings.CurrentValue = NewText
+			    
+			    Input.InputFrame.InputBox:GetPropertyChangedSignal("Text"):Once(function()
+			        Input.InputFrame.InputBox.Text = NewText
+			        InputSettings.CurrentValue = NewText
+			    end)
 			end
 			
 			if Settings.ConfigurationSaving then
@@ -2489,5 +2491,3 @@ function RayfieldLibrary:LoadConfiguration()
 end
 
 task.delay(3.5, RayfieldLibrary.LoadConfiguration, RayfieldLibrary)
-
-return RayfieldLibrary
