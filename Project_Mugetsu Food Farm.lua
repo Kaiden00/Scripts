@@ -6,7 +6,7 @@
     Credits: Kaiden#2444
 --]]
 
-error("Script patched, ain't bothered to patch")
+error("Script patched, ain't bothered to unpatch")
 
 local GENERAL_LOOP_DELAY = 0.05
 
