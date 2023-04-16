@@ -6,6 +6,8 @@
     Credits: Kaiden#2444
 --]]
 
+error("Script patched, ain't bothered to patch")
+
 local GENERAL_LOOP_DELAY = 0.05
 
 local Players = game:GetService("Players")
