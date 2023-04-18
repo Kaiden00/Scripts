@@ -632,7 +632,7 @@ function RayfieldLibrary:Notify(NotificationSettings)
 	end)
 end
 
-function Hide()
+getgenv().Hide = function()
 	Debounce = true
 	RayfieldLibrary:Notify({Title = "Interface Hidden", Content = "The interface has been hidden, you can unhide the interface by tapping RightShift", Duration = 7})
 	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {Size = UDim2.new(0, 470, 0, 400)}):Play()
