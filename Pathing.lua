@@ -111,7 +111,7 @@ local function move(self)
 	if self._waypoints[self._currentWaypoint].Action == Enum.PathWaypointAction.Jump then
 		setJumpState(self)
 	end
-    self._humanoid:Move((self._waypoints[self._currentWaypoint].Position - self._humanoid.RootPart.Position).unit)
+    self._humanoid:Move((self._waypoints[self._currentWaypoint].Position - self._humanoid.Parent.HumanoidRootPart.Position).unit)
 end
 
 --Disconnect MoveToFinished connection when pathfinding ends
@@ -337,7 +337,7 @@ function Path:Run(target)
 
 	--Begin pathfinding
 	if self._humanoid then
-        self._humanoid:Move((self._waypoints[self._currentWaypoint].Position - self._humanoid.RootPart.Position).unit)
+        self._humanoid:Move((self._waypoints[self._currentWaypoint].Position - self._humanoid.Parent.HumanoidRootPart.Position).unit)
 	elseif #self._waypoints == 2 then
 		self._target = nil
 		self._visualWaypoints = destroyVisualWaypoints(self._visualWaypoints)
