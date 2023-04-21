@@ -101,7 +101,7 @@ end
 local function setJumpState(self)
 	pcall(function()
 		if self._humanoid:GetState() ~= Enum.HumanoidStateType.Jumping and self._humanoid:GetState() ~= Enum.HumanoidStateType.Freefall then
-			self._humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			--self._humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 		end
 	end)
 end
